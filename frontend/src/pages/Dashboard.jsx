@@ -133,7 +133,6 @@ export default function Dashboard() {
   // Stable fetch — won't cause infinite loop if fetchBookings is not memoized in context
   useEffect(() => {
     fetchBookings();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // intentionally run only on mount
 
   const handleRefresh = useCallback(() => fetchBookings(), [fetchBookings]);

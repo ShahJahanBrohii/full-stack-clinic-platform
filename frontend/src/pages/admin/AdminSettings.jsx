@@ -22,7 +22,7 @@ function SettingRow({ label, desc, children }) {
         <p className="text-sm font-bold text-white">{label}</p>
         {desc && <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">{desc}</p>}
       </div>
-      <div className="sm:min-w-[260px]">{children}</div>
+      <div className="sm:min-w-65">{children}</div>
     </div>
   );
 }
@@ -30,14 +30,14 @@ function SettingRow({ label, desc, children }) {
 function Input({ value, onChange, placeholder, type = "text" }) {
   return (
     <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
-      className="w-full bg-white/[0.03] border border-white/10 px-3 py-2.5 text-sm text-white placeholder-slate-700 outline-none focus:border-[accent] transition-colors duration-150" />
+      className="w-full bg-white/3 border border-white/10 px-3 py-2.5 text-sm text-white placeholder-slate-700 outline-none focus:border-[accent] transition-colors duration-150" />
   );
 }
 
 function Toggle({ checked, onChange }) {
   return (
     <button onClick={() => onChange(!checked)} aria-checked={checked} role="switch"
-      className={`relative w-10 h-5 flex-shrink-0 transition-colors duration-200 ${checked ? "bg-[accent]" : "bg-white/10"}`}>
+      className={`relative w-10 h-5 shrink-0 transition-colors duration-200 ${checked ? "bg-[accent]" : "bg-white/10"}`}>
       <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-[#0F172A] transition-transform duration-200 ${checked ? "translate-x-5" : "translate-x-0"}`} />
     </button>
   );
@@ -88,7 +88,7 @@ function ClinicInfo() {
       </SettingRow>
       <SettingRow label="Physical Address" desc="Shown in the footer and contact section.">
         <textarea value={form.address} onChange={(e) => f("address")(e.target.value)} rows={2}
-          className="w-full bg-white/[0.03] border border-white/10 px-3 py-2.5 text-sm text-white outline-none focus:border-[accent] transition-colors resize-none" />
+          className="w-full bg-white/3 border border-white/10 px-3 py-2.5 text-sm text-white outline-none focus:border-[accent] transition-colors resize-none" />
       </SettingRow>
       <SettingRow label="Contact Phone" desc="Clickable phone link in the footer.">
         <Input value={form.phone} onChange={f("phone")} placeholder="+92 300 000 0000" />
@@ -101,7 +101,7 @@ function ClinicInfo() {
       </SettingRow>
       <SettingRow label="Currency" desc="Used for displaying prices throughout the site.">
         <select value={form.currency} onChange={(e) => f("currency")(e.target.value)}
-          className="w-full bg-white/[0.03] border border-white/10 px-3 py-2.5 text-sm text-white outline-none focus:border-[accent] transition-colors appearance-none">
+          className="w-full bg-white/3 border border-white/10 px-3 py-2.5 text-sm text-white outline-none focus:border-[accent] transition-colors appearance-none">
           <option value="PKR">PKR — Pakistani Rupee</option>
           <option value="USD">USD — US Dollar</option>
           <option value="GBP">GBP — British Pound</option>
@@ -146,16 +146,16 @@ function Availability() {
         {DAYS.map((day) => {
           const d = schedule[day];
           return (
-            <div key={day} className={`flex items-center gap-4 p-3 border transition-all duration-150 ${d.open ? "border-white/8 bg-white/[0.02]" : "border-white/5 opacity-50"}`}>
+            <div key={day} className={`flex items-center gap-4 p-3 border transition-all duration-150 ${d.open ? "border-white/8 bg-white/2" : "border-white/5 opacity-50"}`}>
               <Toggle checked={d.open} onChange={() => toggleDay(day)} />
               <span className="text-sm font-bold text-white w-24 shrink-0">{day}</span>
               {d.open ? (
                 <div className="flex items-center gap-2 flex-1">
                   <input type="time" value={d.from} onChange={(e) => updateTime(day, "from", e.target.value)}
-                    className="bg-white/[0.03] border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-[accent] transition-colors" />
+                    className="bg-white/3 border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-[accent] transition-colors" />
                   <span className="text-slate-600 text-xs">to</span>
                   <input type="time" value={d.to} onChange={(e) => updateTime(day, "to", e.target.value)}
-                    className="bg-white/[0.03] border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-[accent] transition-colors" />
+                    className="bg-white/3 border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-[accent] transition-colors" />
                 </div>
               ) : (
                 <span className="text-xs text-slate-700 italic">Closed</span>
@@ -167,13 +167,13 @@ function Availability() {
 
       <SettingRow label="Appointment Slot Duration" desc="How long each booking slot lasts (minutes).">
         <select value={slotDuration} onChange={(e) => setSlotDuration(e.target.value)}
-          className="w-full bg-white/[0.03] border border-white/10 px-3 py-2.5 text-sm text-white outline-none focus:border-[accent] transition-colors appearance-none">
+          className="w-full bg-white/3 border border-white/10 px-3 py-2.5 text-sm text-white outline-none focus:border-[accent] transition-colors appearance-none">
           {["30", "45", "60", "75", "90"].map((v) => <option key={v} value={v}>{v} minutes</option>)}
         </select>
       </SettingRow>
       <SettingRow label="Buffer Between Appointments" desc="Gap between sessions (minutes).">
         <select value={bufferTime} onChange={(e) => setBufferTime(e.target.value)}
-          className="w-full bg-white/[0.03] border border-white/10 px-3 py-2.5 text-sm text-white outline-none focus:border-[accent] transition-colors appearance-none">
+          className="w-full bg-white/3 border border-white/10 px-3 py-2.5 text-sm text-white outline-none focus:border-[accent] transition-colors appearance-none">
           {["0", "10", "15", "20", "30"].map((v) => <option key={v} value={v}>{v} minutes</option>)}
         </select>
       </SettingRow>
@@ -219,7 +219,7 @@ function Notifications() {
       ))}
       <SettingRow label="Reminder Lead Time" desc="How many hours before appointment to send reminder.">
         <select value={settings.reminderHours} onChange={(e) => f("reminderHours")(e.target.value)}
-          className="w-full bg-white/[0.03] border border-white/10 px-3 py-2.5 text-sm text-white outline-none focus:border-[accent] transition-colors appearance-none">
+          className="w-full bg-white/3 border border-white/10 px-3 py-2.5 text-sm text-white outline-none focus:border-[accent] transition-colors appearance-none">
           {["2", "6", "12", "24", "48"].map((v) => <option key={v} value={v}>{v} hours before</option>)}
         </select>
       </SettingRow>
@@ -251,7 +251,7 @@ function AdminProfile() {
       <SettingRow label="Phone Number"><Input value={form.phone} onChange={f("phone")} placeholder="+92 300 000 0000" /></SettingRow>
       <SettingRow label="Bio / Credentials" desc="Displayed on the about/team page.">
         <textarea value={form.bio} onChange={(e) => f("bio")(e.target.value)} rows={3}
-          className="w-full bg-white/[0.03] border border-white/10 px-3 py-2.5 text-sm text-white outline-none focus:border-[accent] transition-colors resize-none placeholder-slate-700"
+          className="w-full bg-white/3 border border-white/10 px-3 py-2.5 text-sm text-white outline-none focus:border-[accent] transition-colors resize-none placeholder-slate-700"
           placeholder="e.g. BSc Physical Education & Sports Sciences, Chartered Physiotherapist…" />
       </SettingRow>
       <SaveBar onSave={save} saving={saving} saved={saved} />
@@ -317,7 +317,7 @@ export default function AdminSettings() {
         </aside>
 
         {/* Content */}
-        <div className="flex-1 border border-white/8 bg-white/[0.01] p-6 lg:p-8">
+        <div className="flex-1 border border-white/8 bg-white/1 p-6 lg:p-8">
           <ActiveSection />
         </div>
       </div>

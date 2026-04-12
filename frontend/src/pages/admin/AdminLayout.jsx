@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, CalendarCheck, Users, Dumbbell,
   PlayCircle, BarChart2, Settings, LogOut, Activity,
@@ -56,9 +56,14 @@ function NavItem({ to, label, icon: Icon, end }) {
 export default function AdminLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = () => { logout(); navigate("/login"); };
+
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
 
   const Sidebar = () => (
     <aside className="flex flex-col h-full bg-[#F1F5F9] border-r border-slate-200 w-60 shrink-0">

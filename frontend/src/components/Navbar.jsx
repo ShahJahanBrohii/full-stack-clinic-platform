@@ -27,9 +27,13 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const menuRef = useRef(null);
+  const mobileMenuRef = useRef(null);
 
   // Close menus on route change
   useEffect(() => {
+    if (mobileMenuRef.current?.contains(document.activeElement)) {
+      document.activeElement?.blur();
+    }
     setMobileOpen(false);
     setUserMenuOpen(false);
   }, [location.pathname]);
@@ -256,6 +260,7 @@ export default function Navbar() {
         {/* ─── Mobile drawer ──────────────────────────────────────── */}
         <div
           id="mobile-menu"
+          ref={mobileMenuRef}
           className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
             mobileOpen ? "max-h-150 opacity-100" : "max-h-0 opacity-0"
           }`}

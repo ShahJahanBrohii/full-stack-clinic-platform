@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@theme {
+  /* Primary Branding */
+  --color-primary: #0ea5e9;      /* Trust Blue */
+  --color-primary-light: #38bdf8;
+  --color-primary-dark: #0369a1;
+  --color-secondary: #22c55e;    /* Recovery Green */
+  
+  /* Accent Colors */
+  --color-accent: #f97316;        /* Energy Orange */
+  --color-accent-light: #fb923c;
+  --color-accent-dark: #c2410c;
+  
+  /* Backgrounds */
+  --color-bg-dark: #f8fafc;       /* Requested light background */
+  --color-bg-secondary: #f1f5f9;
+  --color-bg-tertiary: #e2e8f0;
+  
+  /* Text Colors */
+  --color-text-primary: #0f172a;  /* Requested dark text */
+  --color-text-secondary: #334155;
+  --color-text-muted: #64748b;
+  
+  /* Status Colors */
+  --color-success: #10b981;       /* Emerald */
+  --color-warning: #f59e0b;       /* Amber */
+  --color-error: #ef4444;         /* Red */
+  --color-info: #06b6d4;          /* Cyan */
+  
+  /* Font */
+  --font-primary: "Poppins", "Inter", "Helvetica Neue", Arial, sans-serif;
+}
+
+@layer base {
+  body {
+    background: var(--color-bg-dark);
+    color: var(--color-text-primary);
+    margin: 0;
+    font-family: var(--font-primary);
+  }
+
+  /* Remove default focusoutline and add custom */
+  *:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-bg-tertiary);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent);
+  }
+}

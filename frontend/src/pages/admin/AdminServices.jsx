@@ -53,7 +53,7 @@ function ServiceModal({ service, onClose, onSave }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={onClose}>
-      <div className="w-full max-w-2xl bg-[#0F172A] border border-white/10 shadow-2xl flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-2xl bg-surface-dark border border-white/10 shadow-2xl flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 shrink-0">
           <h2 className="text-lg font-black text-white" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
             {isNew ? "ADD NEW SERVICE" : "EDIT SERVICE"}
@@ -127,7 +127,7 @@ function ServiceModal({ service, onClose, onSave }) {
         <div className="flex justify-end gap-2 px-6 py-4 border-t border-white/5 shrink-0">
           <button onClick={onClose} className="px-4 py-2 border border-white/10 text-slate-400 text-xs font-bold tracking-widest uppercase hover:text-white transition-colors">Cancel</button>
           <button onClick={handleSave} disabled={saving}
-            className="flex items-center gap-2 px-5 py-2 bg-accent text-[#0F172A] text-xs font-bold tracking-widest uppercase hover:bg-white transition-colors disabled:opacity-50">
+            className="flex items-center gap-2 px-5 py-2 bg-accent text-text-primary text-xs font-bold tracking-widest uppercase hover:bg-white transition-colors disabled:opacity-50">
             {saving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />} {isNew ? "Create Service" : "Save Changes"}
           </button>
         </div>
@@ -205,7 +205,7 @@ export default function AdminServices() {
       )}
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setDeleteTarget(null)}>
-          <div className="w-full max-w-sm bg-[#0F172A] border border-red-500/20 p-6 flex flex-col gap-5" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-sm bg-surface-dark border border-red-500/20 p-6 flex flex-col gap-5" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-sm font-black text-white">Delete Service</h3>
             <p className="text-sm text-slate-400">Permanently delete <strong className="text-white">"{deleteTarget.title}"</strong>? Existing bookings for this service will be unaffected.</p>
             <div className="flex gap-2">
@@ -221,12 +221,12 @@ export default function AdminServices() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <span className="text-[11px] font-bold tracking-[0.3em] uppercase text-accent">Management</span>
-          <h1 className="mt-1 text-3xl font-black text-white" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+          <h1 className="mt-1 text-3xl font-black text-slate-900" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
             SERVICES <span className="text-slate-600">({filtered.length})</span>
           </h1>
         </div>
         <button onClick={() => setModalService(EMPTY_SERVICE)}
-          className="flex items-center gap-2 px-5 py-2.5 bg-accent text-[#0F172A] text-xs font-bold tracking-widest uppercase hover:bg-white transition-colors self-start sm:self-auto">
+          className="flex items-center gap-2 px-5 py-2.5 bg-accent text-text-primary text-xs font-bold tracking-widest uppercase hover:bg-white transition-colors self-start sm:self-auto">
           <Plus size={13} /> Add Service
         </button>
       </div>
@@ -243,13 +243,13 @@ export default function AdminServices() {
         <div className="relative flex-1 min-w-50 max-w-xs">
           <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600" />
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search services…"
-            className="w-full bg-white/3 border border-white/10 pl-9 pr-4 py-2.5 text-xs text-white placeholder-slate-700 outline-none focus:border-accent transition-colors" />
+            className="w-full bg-white/60 border border-slate-300 pl-9 pr-4 py-2.5 text-xs text-slate-900 placeholder-slate-500 outline-none focus:border-accent transition-colors" />
         </div>
         <div className="flex gap-1 flex-wrap">
           {["all", ...CATEGORIES].map((c) => (
             <button key={c} onClick={() => setCategoryFilter(c)}
               className={`px-3 py-2 text-[10px] font-bold tracking-widest uppercase border transition-all duration-150 ${
-                categoryFilter === c ? "bg-accent border-accent text-[#0F172A]" : "border-white/10 text-slate-500 hover:text-white hover:border-white/25"
+                categoryFilter === c ? "bg-accent border-accent text-text-primary" : "border-white/10 text-slate-500 hover:text-slate-900 hover:border-slate-400"
               }`}>{c === "all" ? "All" : c}</button>
           ))}
         </div>
@@ -279,7 +279,7 @@ export default function AdminServices() {
                   </div>
                   <div>
                     <span className="text-[9px] font-black tracking-widest uppercase text-slate-600">{service.category}</span>
-                    <h3 className="text-sm font-black text-white leading-tight" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>{service.title}</h3>
+                    <h3 className="text-sm font-black text-slate-900 leading-tight" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>{service.title}</h3>
                   </div>
                 </div>
                 <button onClick={() => handleTogglePublish(service._id, service.published)}
@@ -290,7 +290,7 @@ export default function AdminServices() {
               <p className="text-xs text-slate-600 leading-relaxed line-clamp-2 flex-1">{service.description}</p>
               <div className="flex items-center justify-between text-xs">
                 <span className="text-slate-600">{service.duration}</span>
-                <span className="text-white font-bold">{service.price}</span>
+                <span className="text-slate-900 font-bold">{service.price}</span>
               </div>
               <div className="flex gap-2 border-t border-white/5 pt-3">
                 <button onClick={() => setModalService(service)}

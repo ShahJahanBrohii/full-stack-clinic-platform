@@ -60,7 +60,7 @@ export function BulkActionsBar({
                 <CheckSquare size={12} /> Change Status
                 <ChevronDown size={10} className="opacity-0 group-hover:opacity-100 transition-opacity" />
               </button>
-              <div className="absolute hidden group-hover:flex flex-col top-full left-0 mt-1 bg-[#F1F5F9] border border-white/10 rounded shadow-lg z-10">
+              <div className="absolute hidden group-hover:flex flex-col top-full left-0 mt-1 bg-bg-secondary border border-white/10 rounded shadow-lg z-10">
                 {['pending', 'confirmed', 'completed', 'cancelled'].map((status) => (
                   <button
                     key={status}

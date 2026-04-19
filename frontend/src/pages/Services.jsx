@@ -5,9 +5,6 @@ import {
   Activity,
   Shield,
   Users,
-  Brain,
-  Dumbbell,
-  Waves,
   Microscope,
   CheckCircle2,
   ArrowUpRight,
@@ -22,122 +19,109 @@ import {
 } from "lucide-react";
 import { servicesAPI } from "../services/api";
 import { useAuth } from "../hooks/useAuth";
+import { useClinicSettings } from "../context/ClinicSettingsContext";
 
 // ── Services data ─────────────────────────────────────────────────────────────
-const CATEGORIES = ["All", "Rehabilitation", "Assessment", "Prevention", "Group"];
+const CATEGORIES = ["All", "Therapy", "Conditions", "Rehabilitation", "Assessment", "Group"];
 
 const SERVICES = [
   {
     id: 1,
     icon: Zap,
-    category: "Rehabilitation",
-    title: "Sports Injury Rehabilitation",
-    tagline: "From acute injury to full return-to-sport",
-    desc: "Structured recovery programs covering everything from sprains and strains to post-surgical rehab. We use evidence-based manual therapy, electrotherapy, and progressive exercise to get you back faster.",
+    category: "Therapy",
+    title: "Dry Needling Therapy",
+    tagline: "Relieve muscle pain and restore movement",
+    desc: "Focused dry needling treatment to release trigger points, reduce stiffness, and improve mobility with safe clinical technique.",
     duration: "45 – 60 min",
-    price: "PKR 3,500",
+    price: "PKR 3,000",
     tag: "Most Popular",
-    features: ["Personalised rehab plan", "Progress tracking dashboard", "Home exercise videos", "Return-to-sport testing"],
+    features: ["Targeted trigger point release", "Pain reduction support", "Range-of-motion restoration", "Progress-based follow-ups"],
     rating: 4.8,
     reviewCount: 24,
   },
   {
     id: 2,
     icon: Activity,
-    category: "Assessment",
-    title: "Biomechanical Performance Analysis",
-    tagline: "Understand how your body moves",
-    desc: "In-depth movement screening using video analysis to identify compensations, asymmetries, and inefficiencies that limit performance or increase injury risk.",
-    duration: "60 – 75 min",
-    price: "PKR 4,500",
+    category: "Therapy",
+    title: "Massage Therapy",
+    tagline: "Soft tissue recovery for pain and tension",
+    desc: "Hands-on therapeutic massage to improve blood flow, relax tight tissue, and accelerate healing for sports and daily-life strain.",
+    duration: "45 – 60 min",
+    price: "PKR 2,500",
     tag: null,
-    features: ["Video movement analysis", "Written findings report", "Corrective exercise plan", "Follow-up consultation"],
-    rating: 4.9,
-    reviewCount: 18,
+    features: ["Soft tissue mobilization", "Muscle tension release", "Improved flexibility", "Recovery-focused care"],
+    rating: 4.8,
+    reviewCount: 20,
   },
   {
     id: 3,
     icon: Shield,
-    category: "Prevention",
-    title: "Injury Prevention Programme",
-    tagline: "Stay on the field, not the treatment table",
-    desc: "A 6–8 week structured conditioning programme built around your sport, position, and individual risk factors. Reduce re-injury rates and build durable athleticism.",
-    duration: "50 min / session",
-    price: "PKR 8,000 / month",
+    category: "Conditions",
+    title: "Back Pain Rehabilitation",
+    tagline: "Move comfortably with less pain",
+    desc: "Clinical rehabilitation for acute and chronic back pain with posture correction, manual therapy, and guided strengthening.",
+    duration: "45 min",
+    price: "PKR 3,500",
     tag: null,
-    features: ["Sport-specific conditioning", "Neuromuscular training", "Load management guidance", "Monthly re-assessment"],
+    features: ["Posture and load assessment", "Pain management techniques", "Core stabilization exercises", "Home plan guidance"],
     rating: 4.7,
-    reviewCount: 12,
+    reviewCount: 19,
   },
   {
     id: 4,
-    icon: Brain,
-    category: "Rehabilitation",
-    title: "Concussion & Return-to-Sport",
-    tagline: "Safe, phased return after head injuries",
-    desc: "Evidence-based concussion management following current protocols. Cognitive and vestibular rehabilitation with a clear, staged return-to-sport pathway.",
+    icon: Activity,
+    category: "Conditions",
+    title: "Neck Pain Rehabilitation",
+    tagline: "Restore neck function and comfort",
+    desc: "Specialized treatment for cervical pain and stiffness using manual therapy, mobility work, and progressive strengthening.",
     duration: "45 min",
-    price: "PKR 4,000",
+    price: "PKR 3,200",
     tag: null,
-    features: ["Cognitive baseline testing", "Vestibular rehab", "Graded exposure protocol", "Clearance documentation"],
-    rating: 4.9,
-    reviewCount: 9,
+    features: ["Cervical mobility improvement", "Muscle spasm management", "Postural correction", "Recurrence prevention plan"],
+    rating: 4.8,
+    reviewCount: 16,
   },
   {
     id: 5,
-    icon: Dumbbell,
-    category: "Rehabilitation",
-    title: "Strength & Reconditioning",
-    tagline: "Rebuild stronger after injury",
-    desc: "Post-rehab strength training supervised by our sports scientist. Bridges the gap between clinical discharge and return to full training loads.",
-    duration: "60 min",
-    price: "PKR 3,000",
+    icon: Shield,
+    category: "Conditions",
+    title: "Sciatica Management",
+    tagline: "Reduce radiating pain and numbness",
+    desc: "Evidence-based sciatica treatment focused on nerve irritation relief, pain reduction, and safer movement patterns.",
+    duration: "45 min",
+    price: "PKR 3,500",
     tag: null,
-    features: ["Supervised gym sessions", "Progressive overload planning", "Sports-specific loading", "Nutrition guidance"],
-    rating: 4.6,
-    reviewCount: 15,
+    features: ["Nerve glide protocols", "Lumbar decompression work", "Pain and numbness control", "Functional movement retraining"],
+    rating: 4.8,
+    reviewCount: 14,
   },
   {
     id: 6,
-    icon: Waves,
-    category: "Assessment",
-    title: "Running Gait Analysis",
-    tagline: "Run faster. Run pain-free.",
-    desc: "Detailed treadmill-based running analysis with slow-motion video review. Ideal for runners with recurring knee, hip, or foot issues — or those wanting to improve economy.",
+    icon: Zap,
+    category: "Rehabilitation",
+    title: "Post Surgical Conditions",
+    tagline: "Guided recovery after surgery",
+    desc: "Structured rehabilitation to restore strength, mobility, and confidence after orthopedic and soft tissue surgical procedures.",
     duration: "60 min",
-    price: "PKR 5,000",
+    price: "PKR 4,000",
     tag: "New",
-    features: ["Slow-motion video review", "Step rate & cadence analysis", "Footwear recommendations", "Corrective drill programme"],
+    features: ["Post-op protocol alignment", "Joint mobility restoration", "Strength rebuilding", "Functional return planning"],
     rating: 4.8,
-    reviewCount: 21,
+    reviewCount: 13,
   },
   {
     id: 7,
-    icon: Microscope,
-    category: "Assessment",
-    title: "Functional Movement Screening",
-    tagline: "A full-body movement MOT",
-    desc: "The Functional Movement Screen (FMS) identifies movement dysfunctions and asymmetries through seven standardised tests. A 20-minute screen can prevent months on the sidelines.",
-    duration: "30 min",
-    price: "PKR 2,500",
-    tag: null,
-    features: ["7-point FMS protocol", "Mobility & stability scoring", "Priority corrective exercises", "Instant results report"],
-    rating: 4.7,
-    reviewCount: 10,
-  },
-  {
-    id: 8,
     icon: Users,
-    category: "Group",
-    title: "Team & Academy Packages",
-    tagline: "Whole-squad injury care and screening",
-    desc: "Tailored packages for sports clubs, school teams, and academies. Includes pre-season screening, in-season management, and post-season recovery planning.",
-    duration: "Flexible",
-    price: "Contact for quote",
-    tag: "For Teams",
-    features: ["Pre-season FMS screening", "Match-day injury coverage", "Rehab for squad players", "Coach education session"],
-    rating: 4.9,
-    reviewCount: 6,
+    category: "Rehabilitation",
+    title: "Old Age Rehabilitation",
+    tagline: "Safer movement and stronger independence",
+    desc: "Gentle and progressive rehabilitation for older adults to improve balance, mobility, and everyday confidence.",
+    duration: "45 min",
+    price: "PKR 2,800",
+    tag: null,
+    features: ["Balance and fall-risk support", "Functional strength training", "Mobility enhancement", "Individualized pace of care"],
+    rating: 4.7,
+    reviewCount: 11,
   },
 ];
 
@@ -149,7 +133,7 @@ function ServiceCard({ service, isAdmin }) {
     <article className="group relative flex flex-col bg-white/2 border border-white/8 hover:border-accent/40 hover:bg-accent/2 transition-all duration-300">
       {/* Tag badge */}
       {tag && (
-        <span className="absolute top-4 right-4 text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 bg-gradient-primary text-[#0F172A] z-10">
+        <span className="absolute top-4 right-4 text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 bg-gradient-primary text-text-primary z-10">
           {tag}
         </span>
       )}
@@ -160,7 +144,7 @@ function ServiceCard({ service, isAdmin }) {
           <div className="w-10 h-10 flex items-center justify-center bg-accent/10 border border-accent/20 group-hover:bg-accent group-hover:border-accent transition-all duration-300">
             <Icon
               size={18}
-              className="text-accent group-hover:text-[#0F172A] transition-colors duration-300"
+              className="text-accent group-hover:text-text-primary transition-colors duration-300"
               aria-hidden="true"
             />
           </div>
@@ -223,7 +207,7 @@ function ServiceCard({ service, isAdmin }) {
         </div>
         <NavLink
           to={isAdmin ? "/admin/services" : "/book"}
-          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-primary text-[#0F172A] text-xs font-bold tracking-widest uppercase hover:shadow-glow-primary transition-all duration-200 shrink-0"
+          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-primary text-text-primary text-xs font-bold tracking-widest uppercase hover:shadow-glow-primary transition-all duration-200 shrink-0"
           aria-label={isAdmin ? `Manage ${title}` : `Book ${title}`}
         >
           {isAdmin ? "Manage" : "Book"}
@@ -249,6 +233,8 @@ function mapServiceForView(service) {
 
   let icon = fallbackIcon;
   if (categoryKey.includes("rehab")) icon = Zap;
+  else if (categoryKey.includes("therap")) icon = Activity;
+  else if (categoryKey.includes("condition")) icon = Shield;
   else if (categoryKey.includes("assess")) icon = Microscope;
   else if (categoryKey.includes("prevent")) icon = Shield;
   else if (categoryKey.includes("group") || categoryKey.includes("team")) icon = Users;
@@ -283,6 +269,7 @@ function mapServiceForView(service) {
 // ── Page component ────────────────────────────────────────────────────────────
 export default function Services() {
   const { user } = useAuth();
+  const { settings } = useClinicSettings();
   const isAdmin = user?.role === "admin";
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -346,9 +333,9 @@ export default function Services() {
   }
 
   return (
-    <div className="bg-[#0F172A] min-h-screen">
+    <div className="bg-surface-dark min-h-screen">
 
-        <div className="relative overflow-hidden border-b border-white/5 bg-[#F1F5F9]">
+        <div className="relative overflow-hidden border-b border-white/5 bg-bg-secondary">
         <div
           className="absolute inset-0 opacity-[0.035]"
           aria-hidden="true"
@@ -366,11 +353,11 @@ export default function Services() {
             className="mt-4 text-5xl lg:text-7xl font-black text-slate-900 leading-none"
             style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
           >
-            CLINICAL SERVICES
+            REHABILITATION SERVICES
           </h1>
           <p className="mt-5 text-slate-600 text-lg max-w-xl leading-relaxed">
-            From acute injury rehab to performance screening — every service is
-            grounded in Sports Sciences evidence and built around your goals.
+            At {settings.clinicName}, every treatment plan is personalized for pain relief, mobility,
+            strength, and long-term recovery confidence.
           </p>
 
           {/* Inline CTA */}
@@ -378,7 +365,7 @@ export default function Services() {
             {!isAdmin ? (
               <NavLink
                 to="/book"
-                className="flex items-center gap-2 px-7 py-3 bg-gradient-primary text-[#0F172A] font-bold text-sm tracking-widest uppercase hover:shadow-glow-primary transition-all duration-200"
+                className="flex items-center gap-2 px-7 py-3 bg-gradient-primary text-text-primary font-bold text-sm tracking-widest uppercase hover:shadow-glow-primary transition-all duration-200"
               >
                 <CalendarCheck size={15} strokeWidth={2.5} aria-hidden="true" />
                 Book a Service
@@ -386,23 +373,18 @@ export default function Services() {
             ) : (
               <NavLink
                 to="/admin/services"
-                className="flex items-center gap-2 px-7 py-3 bg-gradient-primary text-[#0F172A] font-bold text-sm tracking-widest uppercase hover:shadow-glow-primary transition-all duration-200"
+                className="flex items-center gap-2 px-7 py-3 bg-gradient-primary text-text-primary font-bold text-sm tracking-widest uppercase hover:shadow-glow-primary transition-all duration-200"
               >
                 Manage Services
               </NavLink>
             )}
-            <p className="text-sm text-slate-600">
-              Not sure which service?&nbsp;
-              <a href="mailto:info@apexclinic.pk" className="text-accent hover:underline">
-                Email us
-              </a>
-            </p>
+            <p className="text-sm text-slate-600">Need guidance? Call {settings.phone}</p>
           </div>
         </div>
       </div>
 
       {/* ── Search box ───────────────────────────────────────────── */}
-      <div className="bg-[#0F172A] border-b border-white/5">
+      <div className="bg-surface-dark border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="relative">
             <Search
@@ -432,7 +414,7 @@ export default function Services() {
       </div>
 
       {/* ── Filter tabs ──────────────────────────────────────────── */}
-      <div className="sticky top-16.75 z-30 bg-[#0F172A]/95 backdrop-blur-md border-b border-white/5">
+      <div className="sticky top-16.75 z-30 bg-surface-dark/95 backdrop-blur-md border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
             className="flex items-center gap-1 overflow-x-auto py-3 scrollbar-none"
@@ -453,7 +435,7 @@ export default function Services() {
                   onClick={() => setActiveCategory(cat)}
                   className={`px-5 py-2 text-xs font-bold tracking-widest uppercase whitespace-nowrap transition-all duration-200 border ${
                     activeCategory === cat
-                      ? "bg-gradient-primary text-[#0F172A] border-primary-600"
+                      ? "bg-gradient-primary text-text-primary border-primary-600"
                       : "border-white/10 text-slate-500 hover:text-white hover:border-white/30"
                   }`}
                 >
@@ -508,7 +490,7 @@ export default function Services() {
       </div>
 
       {/* ── Bottom CTA ───────────────────────────────────────────── */}
-      <div className="border-t border-white/5 bg-[#F1F5F9]">
+      <div className="border-t border-white/5 bg-bg-secondary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div>
             <h3
@@ -524,8 +506,8 @@ export default function Services() {
             </p>
           </div>
           <a
-            href="mailto:info@apexclinic.pk"
-            className="flex items-center gap-2 px-7 py-3 border border-accent/40 text-accent text-sm font-bold tracking-widest uppercase hover:bg-accent hover:text-[#0F172A] transition-all duration-200 shrink-0"
+            href={`mailto:${settings.clinicEmail}`}
+            className="flex items-center gap-2 px-7 py-3 border border-accent/40 text-accent text-sm font-bold tracking-widest uppercase hover:bg-accent hover:text-text-primary transition-all duration-200 shrink-0"
           >
             Get in Touch
             <ArrowUpRight size={14} aria-hidden="true" />

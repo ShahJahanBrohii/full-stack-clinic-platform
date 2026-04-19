@@ -40,6 +40,7 @@ const serviceRoutes = require('./routes/serviceRoutes');
 const videoRoutes = require('./routes/videoRoutes');
 const videoProgressRoutes = require('./routes/videoProgressRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const publicRoutes = require('./routes/publicRoutes');
 
 // Mount routes with API prefix
 app.use('/api/auth', authRoutes);
@@ -48,6 +49,7 @@ app.use('/api/services', serviceRoutes);
 app.use('/api/videos', videoRoutes);
 app.use('/api/video-progress', videoProgressRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/public', publicRoutes);
 
 // Backward-compatible aliases (for older clients configured without /api prefix)
 app.use('/admin', adminRoutes);

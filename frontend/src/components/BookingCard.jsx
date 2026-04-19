@@ -462,7 +462,7 @@ export default function BookingCard({ booking, onCancel, onReschedule, compact =
                 href={sessionLink}
                 target="_blank"
                 rel="noreferrer"
-                className="px-3 py-1.5 bg-accent text-[#0F172A] text-[10px] font-bold tracking-widest uppercase hover:bg-white transition-colors duration-150"
+                className="px-3 py-1.5 bg-accent text-text-primary text-[10px] font-bold tracking-widest uppercase hover:bg-white transition-colors duration-150"
               >
                 Join Session
               </a>
@@ -540,7 +540,7 @@ export default function BookingCard({ booking, onCancel, onReschedule, compact =
                         <button
                           onClick={handleReschedule}
                           disabled={rescheduleLoading}
-                          className="flex items-center gap-2 px-4 py-2 bg-accent text-[#0F172A] text-xs font-bold tracking-widest uppercase hover:bg-white disabled:opacity-50"
+                          className="flex items-center gap-2 px-4 py-2 bg-accent text-text-primary text-xs font-bold tracking-widest uppercase hover:bg-white disabled:opacity-50"
                         >
                           {rescheduleLoading && <Loader2 size={12} className="animate-spin" />}
                           Save schedule

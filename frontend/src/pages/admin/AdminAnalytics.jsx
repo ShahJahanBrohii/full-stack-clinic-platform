@@ -22,7 +22,7 @@ function formatMonthLabel(year, month) {
   return date.toLocaleDateString("en", { month: "short" });
 }
 
-function BarChart({ data, labelKey, valueKey, color = "#0EA5E9", height = 160 }) {
+function BarChart({ data, labelKey, valueKey, color = "var(--color-primary)", height = 160 }) {
   const max = Math.max(...data.map((d) => Number(d[valueKey]) || 0), 1);
   return (
     <div className="flex items-end gap-1.5" style={{ height }}>
@@ -48,7 +48,7 @@ function BarChart({ data, labelKey, valueKey, color = "#0EA5E9", height = 160 })
   );
 }
 
-function Sparkline({ data, color = "#0EA5E9", width = 80, height = 30 }) {
+function Sparkline({ data, color = "var(--color-primary)", width = 80, height = 30 }) {
   if (!data || data.length < 2) return null;
   const max = Math.max(...data);
   const min = Math.min(...data);
@@ -78,7 +78,7 @@ function MetricCard({ icon: Icon, label, value, hint, sparkData }) {
         <Sparkline data={sparkData} />
       </div>
       <div>
-        <p className="text-3xl font-black text-white leading-none" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+        <p className="text-3xl font-black text-slate-900 leading-none" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
           {value}
         </p>
         <p className="text-xs text-slate-500 mt-1">{label}</p>
@@ -159,10 +159,10 @@ export default function AdminAnalytics() {
     const totalStatus = Object.values(statusLookup).reduce((sum, value) => sum + value, 0) || 1;
 
     const statusDistribution = [
-      { label: "Confirmed", value: statusLookup.confirmed || 0, color: "#0EA5E9" },
-      { label: "Completed", value: statusLookup.completed || 0, color: "#64748b" },
-      { label: "Pending", value: statusLookup.pending || 0, color: "#facc15" },
-      { label: "Cancelled", value: statusLookup.cancelled || 0, color: "#f87171" },
+      { label: "Confirmed", value: statusLookup.confirmed || 0, color: "var(--color-primary)" },
+      { label: "Completed", value: statusLookup.completed || 0, color: "var(--color-text-muted)" },
+      { label: "Pending", value: statusLookup.pending || 0, color: "var(--color-warning)" },
+      { label: "Cancelled", value: statusLookup.cancelled || 0, color: "var(--color-error)" },
     ].map((item) => ({
       ...item,
       pct: Math.round((item.value / totalStatus) * 100),
@@ -204,7 +204,7 @@ export default function AdminAnalytics() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <span className="text-[11px] font-bold tracking-[0.3em] uppercase text-[accent]">Reporting</span>
-          <h1 className="mt-1 text-3xl font-black text-white" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+          <h1 className="mt-1 text-3xl font-black text-slate-900" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
             ANALYTICS
           </h1>
         </div>
@@ -214,7 +214,7 @@ export default function AdminAnalytics() {
               key={p}
               onClick={() => setPeriod(p)}
               className={`px-3 py-1.5 text-[10px] font-bold tracking-widest uppercase border transition-all duration-150 ${
-                period === p ? "bg-[accent] border-[accent] text-[#0F172A]" : "border-white/10 text-slate-500 hover:text-white"
+                period === p ? "bg-[accent] border-[accent] text-text-primary" : "border-white/10 text-slate-500 hover:text-slate-900"
               }`}
             >
               {p}
@@ -265,29 +265,29 @@ export default function AdminAnalytics() {
           <div className="grid lg:grid-cols-2 gap-6">
             <div className="border border-white/8 bg-white/1 p-6 flex flex-col gap-5">
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-black text-white" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+                <h2 className="text-base font-black text-slate-900" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
                   MONTHLY BOOKINGS
                 </h2>
                 <span className="text-xs text-slate-600">Recent trend</span>
               </div>
-              <BarChart data={derived.monthlyBookings} labelKey="month" valueKey="bookings" color="#0EA5E9" height={180} />
+              <BarChart data={derived.monthlyBookings} labelKey="month" valueKey="bookings" color="var(--color-primary)" height={180} />
             </div>
 
             <div className="border border-white/8 bg-white/1 p-6 flex flex-col gap-5">
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-black text-white" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+                <h2 className="text-base font-black text-slate-900" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
                   MONTHLY REVENUE (PKR)
                 </h2>
                 <span className="text-xs text-slate-600">Paid bookings only</span>
               </div>
-              <BarChart data={derived.monthlyRevenue} labelKey="month" valueKey="revenue" color="#4ade80" height={180} />
+              <BarChart data={derived.monthlyRevenue} labelKey="month" valueKey="revenue" color="var(--color-success)" height={180} />
               <p className="text-[10px] text-slate-700">Values shown in thousands (K)</p>
             </div>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-6">
             <div className="border border-white/8 bg-white/1 p-6 flex flex-col gap-4">
-              <h2 className="text-base font-black text-white" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+              <h2 className="text-base font-black text-slate-900" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
                 TOP SERVICES
               </h2>
               <div className="flex flex-col gap-3">
@@ -300,7 +300,7 @@ export default function AdminAnalytics() {
                         <span className="text-slate-400 font-semibold truncate max-w-44">{name}</span>
                         <div className="flex items-center gap-3 shrink-0">
                           <span className="text-slate-600">{bookings} bookings</span>
-                          <span className="text-white font-bold">PKR {Number(revenue).toLocaleString("en-PK")}</span>
+                          <span className="text-slate-900 font-bold">PKR {Number(revenue).toLocaleString("en-PK")}</span>
                         </div>
                       </div>
                       <div className="h-1.5 bg-white/5 w-full overflow-hidden">
@@ -314,14 +314,14 @@ export default function AdminAnalytics() {
             </div>
 
             <div className="border border-white/8 bg-white/1 p-6 flex flex-col gap-4">
-              <h2 className="text-base font-black text-white" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+              <h2 className="text-base font-black text-slate-900" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
                 BOOKING STATUS DISTRIBUTION
               </h2>
               <div className="grid grid-cols-2 gap-4">
                 {derived.statusDistribution.map(({ label, value, pct, color }) => (
                   <div key={label} className="flex flex-col gap-3 p-4 border border-white/5 bg-white/1">
                     <div className="flex items-end gap-2">
-                      <span className="text-2xl font-black text-white" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+                      <span className="text-2xl font-black text-slate-900" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
                         {pct}%
                       </span>
                       <span className="text-xs text-slate-600 pb-0.5">{value} bookings</span>

@@ -11,6 +11,13 @@ const mongoose = require('mongoose');
 router.use(authMiddleware, adminMiddleware);
 
 const MANUAL_PAYMENT_METHODS = ['jazzcash', 'easypaisa'];
+const TIME_SLOTS = [
+  '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+  '12:00', '12:30', '14:00', '14:30', '15:00', '15:30',
+  '16:00', '16:30', '17:00', '17:30',
+];
+const BOOKING_STATUSES = ['pending', 'confirmed', 'completed', 'cancelled'];
+const PAYMENT_STATUSES = ['pending', 'under_review', 'completed', 'failed'];
 
 function isManualPaymentMethod(paymentMethod) {
   return MANUAL_PAYMENT_METHODS.includes(String(paymentMethod || '').toLowerCase());
@@ -202,6 +209,19 @@ function startOfMonth(date = new Date()) {
   value.setDate(1);
   value.setHours(0, 0, 0, 0);
   return value;
+}
+
+function getDayRange(dateInput) {
+  const date = new Date(dateInput);
+  if (Number.isNaN(date.getTime())) return null;
+
+  const start = new Date(date);
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date(date);
+  end.setHours(23, 59, 59, 999);
+
+  return { start, end };
 }
 
 async function buildPatientStats(patientIds) {
@@ -592,7 +612,7 @@ router.delete('/patients/:id', async (req, res) => {
     patient.updatedAt = new Date();
     await patient.save();
 
-    res.json({ message: 'Patient deleted successfully!' });
+    res.json({ message: 'Patient deactivated successfully!' });
   } catch (error) {
     console.error('Delete patient error:', error);
     res.status(500).json({ message: 'Error deleting patient.' });
@@ -640,6 +660,105 @@ router.get('/bookings', async (req, res) => {
   } catch (error) {
     console.error('Get bookings error:', error);
     res.status(500).json({ message: 'Error fetching bookings.' });
+  }
+});
+
+router.post('/bookings', async (req, res) => {
+  try {
+    const {
+      patientId,
+      serviceId,
+      date,
+      timeSlot,
+      notes,
+      status,
+      paymentMethod,
+      paymentStatus,
+      consultationType,
+      sessionLink,
+      transactionId,
+    } = req.body;
+
+    if (!patientId || !serviceId || !date || !timeSlot) {
+      return res.status(400).json({ message: 'Patient, service, date, and time slot are required.' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(patientId) || !mongoose.Types.ObjectId.isValid(serviceId)) {
+      return res.status(400).json({ message: 'Invalid patient or service ID.' });
+    }
+
+    if (!TIME_SLOTS.includes(timeSlot)) {
+      return res.status(400).json({ message: 'Invalid time slot.' });
+    }
+
+    const patient = await User.findOne({ _id: patientId, role: 'patient' });
+    if (!patient) {
+      return res.status(404).json({ message: 'Patient not found.' });
+    }
+
+    const service = await Service.findById(serviceId);
+    if (!service) {
+      return res.status(404).json({ message: 'Service not found.' });
+    }
+
+    const dayRange = getDayRange(date);
+    if (!dayRange) {
+      return res.status(400).json({ message: 'Invalid date format.' });
+    }
+
+    const duplicate = await Booking.findOne({
+      serviceId,
+      date: { $gte: dayRange.start, $lte: dayRange.end },
+      timeSlot,
+      status: { $nin: ['cancelled'] },
+    });
+
+    if (duplicate) {
+      return res.status(400).json({ message: 'This time slot is already booked.' });
+    }
+
+    const normalizedPaymentMethod = String(paymentMethod || 'cash').toLowerCase();
+    const defaultPaymentStatus = isManualPaymentMethod(normalizedPaymentMethod) ? 'under_review' : 'pending';
+    const resolvedPaymentStatus = paymentStatus || defaultPaymentStatus;
+    const resolvedStatus = status || (resolvedPaymentStatus === 'completed' ? 'confirmed' : 'pending');
+
+    if (!BOOKING_STATUSES.includes(resolvedStatus)) {
+      return res.status(400).json({ message: 'Invalid booking status.' });
+    }
+
+    if (!PAYMENT_STATUSES.includes(resolvedPaymentStatus)) {
+      return res.status(400).json({ message: 'Invalid payment status.' });
+    }
+
+    const booking = new Booking({
+      patientId,
+      serviceId,
+      date: dayRange.start,
+      timeSlot,
+      notes,
+      status: resolvedStatus,
+      paymentMethod: normalizedPaymentMethod,
+      paymentStatus: resolvedPaymentStatus,
+      consultationType: consultationType || 'in_person',
+      sessionLink: sessionLink || '',
+      transactionId: transactionId || '',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    await booking.save();
+
+    const populatedBooking = await Booking.findById(booking._id)
+      .populate('patientId', 'name email phone')
+      .populate('serviceId', 'name category price duration');
+
+    res.status(201).json({
+      message: 'Booking created successfully!',
+      booking: formatBooking(populatedBooking),
+    });
+  } catch (error) {
+    console.error('Create booking error:', error);
+    res.status(500).json({ message: 'Error creating booking.' });
   }
 });
 

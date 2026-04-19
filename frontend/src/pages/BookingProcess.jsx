@@ -101,21 +101,21 @@ const StepIndicator = memo(function StepIndicator({ currentStep }) {
                 <div
                   className={`w-8 h-8 flex items-center justify-center border-2 text-xs font-black transition-all duration-300 ${
                     done
-                      ? "bg-[#0EA5E9] border-[#0EA5E9]"
+                      ? "bg-primary border-primary"
                       : active
-                      ? "border-[#0EA5E9] text-[#0EA5E9]"
+                      ? "border-primary text-primary"
                         : "border-slate-300 text-slate-500"
                   }`}
                   aria-current={active ? "step" : undefined}
                   aria-label={`Step ${step.id}: ${step.label}${done ? " (completed)" : active ? " (current)" : ""}`}
                 >
                   {done
-                    ? <Check size={14} strokeWidth={3} className="text-[#0F172A]" aria-hidden="true" />
+                    ? <Check size={14} strokeWidth={3} className="text-text-primary" aria-hidden="true" />
                     : <span aria-hidden="true">{step.id}</span>}
                 </div>
                 <span
                   className={`text-[10px] font-bold tracking-widest uppercase whitespace-nowrap ${
-                    active ? "text-[#0EA5E9]" : done ? "text-slate-400" : "text-slate-700"
+                    active ? "text-primary" : done ? "text-slate-400" : "text-slate-700"
                   }`}
                 >
                   {step.label}
@@ -124,7 +124,7 @@ const StepIndicator = memo(function StepIndicator({ currentStep }) {
               {i < STEPS.length - 1 && (
                 <div
                   className={`w-12 sm:w-20 lg:w-28 h-0.5 mb-5 mx-1 transition-colors duration-300 ${
-                    done ? "bg-[#0EA5E9]" : "bg-slate-200"
+                    done ? "bg-primary" : "bg-slate-200"
                   }`}
                   aria-hidden="true"
                 />
@@ -154,7 +154,7 @@ const StepService = memo(function StepService({ draft, setDraft }) {
 
   if (loading) return (
     <div className="flex items-center justify-center py-20" aria-label="Loading services">
-      <Loader2 size={24} className="text-[#0EA5E9] animate-spin" aria-hidden="true" />
+      <Loader2 size={24} className="text-primary animate-spin" aria-hidden="true" />
     </div>
   );
 
@@ -188,23 +188,23 @@ const StepService = memo(function StepService({ draft, setDraft }) {
             aria-pressed={selected}
             className={`text-left p-5 border flex flex-col gap-3 transition-all duration-200 group ${
               selected
-                ? "border-[#0EA5E9] bg-[#0EA5E9]/5"
-                : "border-slate-200 bg-white hover:border-[#0EA5E9]/40"
+                ? "border-primary bg-primary/5"
+                : "border-slate-200 bg-white hover:border-primary/40"
             }`}
           >
             <div className="flex items-start justify-between gap-3">
               <div className={`w-9 h-9 flex items-center justify-center border transition-all duration-200 ${
                 selected
-                  ? "bg-[#0EA5E9] border-[#0EA5E9]"
-                  : "bg-[#0EA5E9]/10 border-[#0EA5E9]/20 group-hover:bg-[#0EA5E9]/20"
+                  ? "bg-primary border-primary"
+                  : "bg-primary/10 border-primary/20 group-hover:bg-primary/20"
               }`}>
-                <Activity size={15} className={selected ? "text-[#0F172A]" : "text-[#0EA5E9]"} aria-hidden="true" />
+                <Activity size={15} className={selected ? "text-text-primary" : "text-primary"} aria-hidden="true" />
               </div>
-              {selected && <CheckCircle2 size={16} className="text-[#0EA5E9] shrink-0 mt-0.5" aria-hidden="true" />}
+              {selected && <CheckCircle2 size={16} className="text-primary shrink-0 mt-0.5" aria-hidden="true" />}
             </div>
             <div>
               <p
-                className={`text-sm font-black leading-tight ${selected ? "text-[#0EA5E9]" : "text-slate-900"}`}
+                className={`text-sm font-black leading-tight ${selected ? "text-primary" : "text-slate-900"}`}
                 style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
               >
                 {serviceTitle}
@@ -213,11 +213,11 @@ const StepService = memo(function StepService({ draft, setDraft }) {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xs text-slate-500 flex items-center gap-1">
-                <Clock size={10} className="text-[#0EA5E9]" aria-hidden="true" />
+                <Clock size={10} className="text-primary" aria-hidden="true" />
                 {service.duration || "45–60 min"}
               </span>
               <span className="text-xs font-bold text-slate-900 flex items-center gap-1">
-                <Tag size={10} className="text-[#0EA5E9]" aria-hidden="true" />
+                <Tag size={10} className="text-primary" aria-hidden="true" />
                 {service.price || "—"}
               </span>
             </div>
@@ -270,20 +270,20 @@ const StepDateTime = memo(function StepDateTime({ draft, setDraft }) {
                 aria-label={formatDateShort(d)}
                 className={`flex flex-col items-center gap-1 px-3 py-3 border transition-all duration-200 min-w-16 ${
                   selected
-                    ? "bg-[#0EA5E9] border-[#0EA5E9]"
-                    : "border-slate-300 bg-white hover:border-[#0EA5E9]/40"
+                    ? "bg-primary border-primary"
+                    : "border-slate-300 bg-white hover:border-primary/40"
                 }`}
               >
-                <span className={`text-[10px] font-bold tracking-widest uppercase ${selected ? "text-[#0F172A]/70" : "text-slate-600"}`}>
+                <span className={`text-[10px] font-bold tracking-widest uppercase ${selected ? "text-text-primary/70" : "text-slate-600"}`}>
                   {d.toLocaleDateString("en", { weekday: "short" })}
                 </span>
                 <span
-                  className={`text-xl font-black leading-none ${selected ? "text-[#0F172A]" : "text-slate-900"}`}
+                  className={`text-xl font-black leading-none ${selected ? "text-text-primary" : "text-slate-900"}`}
                   style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
                 >
                   {d.getDate()}
                 </span>
-                <span className={`text-[10px] font-medium ${selected ? "text-[#0F172A]/60" : "text-slate-600"}`}>
+                <span className={`text-[10px] font-medium ${selected ? "text-text-primary/60" : "text-slate-600"}`}>
                   {d.toLocaleDateString("en", { month: "short" })}
                 </span>
               </button>
@@ -298,7 +298,7 @@ const StepDateTime = memo(function StepDateTime({ draft, setDraft }) {
           <h3 className="text-xs font-bold tracking-widest uppercase text-slate-500 mb-4" id="time-label">
             Select Time Slot
             {slotsLoading && (
-              <Loader2 size={11} className="inline ml-2 animate-spin text-[#0EA5E9]" aria-label="Loading available slots" />
+              <Loader2 size={11} className="inline ml-2 animate-spin text-primary" aria-label="Loading available slots" />
             )}
           </h3>
           <div
@@ -321,8 +321,8 @@ const StepDateTime = memo(function StepDateTime({ draft, setDraft }) {
                     !isAvailable
                       ? "border-slate-200 text-slate-400 cursor-not-allowed line-through bg-transparent"
                       : selected
-                      ? "bg-[#0EA5E9] border-[#0EA5E9] text-[#0F172A]"
-                      : "border-slate-300 text-slate-700 hover:border-[#0EA5E9]/40 hover:text-slate-900 bg-white"
+                      ? "bg-primary border-primary text-text-primary"
+                      : "border-slate-300 text-slate-700 hover:border-primary/40 hover:text-slate-900 bg-white"
                   }`}
                 >
                   {formatTimeSlot(slot)}
@@ -392,26 +392,26 @@ const StepPayment = memo(function StepPayment({ draft, setDraft }) {
               aria-pressed={selected}
               className={`flex items-center gap-4 p-5 border text-left transition-all duration-200 ${
                 selected
-                  ? "border-[#0EA5E9] bg-[#0EA5E9]/5"
-                  : "border-slate-200 bg-white hover:border-[#0EA5E9]/40"
+                  ? "border-primary bg-primary/5"
+                  : "border-slate-200 bg-white hover:border-primary/40"
               }`}
             >
               <div className={`w-10 h-10 flex items-center justify-center border transition-all duration-200 ${
-                selected ? "bg-[#0EA5E9] border-[#0EA5E9]" : "bg-[#0EA5E9]/10 border-[#0EA5E9]/20"
+                selected ? "bg-primary border-primary" : "bg-primary/10 border-primary/20"
               }`}>
-                <Icon size={17} className={selected ? "text-[#0F172A]" : "text-[#0EA5E9]"} aria-hidden="true" />
+                <Icon size={17} className={selected ? "text-text-primary" : "text-primary"} aria-hidden="true" />
               </div>
               <div className="flex-1">
-                <p className={`text-sm font-bold ${selected ? "text-[#0EA5E9]" : "text-slate-900"}`}>{label}</p>
+                <p className={`text-sm font-bold ${selected ? "text-primary" : "text-slate-900"}`}>{label}</p>
                 <p className="text-xs text-slate-600 mt-0.5">{desc}</p>
               </div>
               <div
                 className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
-                  selected ? "border-[#0EA5E9]" : "border-white/20"
+                  selected ? "border-primary" : "border-white/20"
                 }`}
                 aria-hidden="true"
               >
-                {selected && <div className="w-2.5 h-2.5 rounded-full bg-[#0EA5E9]" />}
+                {selected && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
               </div>
             </button>
           );
@@ -419,9 +419,9 @@ const StepPayment = memo(function StepPayment({ draft, setDraft }) {
       </fieldset>
 
       {manualPaymentSelected && (
-        <div className="border border-[#0EA5E9]/30 bg-[#0EA5E9]/5 p-4 flex flex-col gap-4">
+        <div className="border border-primary/30 bg-primary/5 p-4 flex flex-col gap-4">
           <div>
-            <p className="text-xs font-bold tracking-widest uppercase text-[#0EA5E9]">Transfer Details</p>
+            <p className="text-xs font-bold tracking-widest uppercase text-primary">Transfer Details</p>
             <p className="text-sm text-slate-900 mt-2">
               Send payment to <strong>{draft.paymentMethod === "jazzcash" ? "JazzCash" : "Easypaisa"}</strong> number:
               <span className="ml-2 font-black tracking-wider">{MANUAL_WALLET_NUMBERS[draft.paymentMethod]}</span>
@@ -437,7 +437,7 @@ const StepPayment = memo(function StepPayment({ draft, setDraft }) {
               value={draft.transactionId || ""}
               onChange={(e) => setDraft({ transactionId: e.target.value })}
               placeholder="e.g. TID-123456"
-              className="w-full bg-white border border-slate-300 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-[#0EA5E9] transition-colors duration-200"
+              className="w-full bg-white border border-slate-300 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-primary transition-colors duration-200"
             />
           </div>
 
@@ -445,8 +445,8 @@ const StepPayment = memo(function StepPayment({ draft, setDraft }) {
             <label htmlFor="payment-proof" className="text-xs font-bold tracking-widest uppercase text-slate-500">
               Payment Screenshot <span className="text-red-400">*</span>
             </label>
-            <label htmlFor="payment-proof" className="cursor-pointer w-full border border-dashed border-slate-300 hover:border-[#0EA5E9] px-4 py-4 text-sm text-slate-600 hover:text-slate-900 transition-colors duration-200 flex items-center gap-3">
-              <Upload size={15} className="text-[#0EA5E9]" aria-hidden="true" />
+            <label htmlFor="payment-proof" className="cursor-pointer w-full border border-dashed border-slate-300 hover:border-primary px-4 py-4 text-sm text-slate-600 hover:text-slate-900 transition-colors duration-200 flex items-center gap-3">
+              <Upload size={15} className="text-primary" aria-hidden="true" />
               {draft.paymentProofImage ? "Change uploaded screenshot" : "Upload transfer screenshot"}
             </label>
             <input
@@ -476,7 +476,7 @@ const StepPayment = memo(function StepPayment({ draft, setDraft }) {
           onChange={(e) => setDraft({ notes: e.target.value })}
           placeholder="Any specific concerns, injury history, or requests for the specialist…"
           rows={3}
-          className="w-full bg-white border border-slate-300 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-[#0EA5E9] transition-colors duration-200 resize-none"
+          className="w-full bg-white border border-slate-300 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-primary transition-colors duration-200 resize-none"
         />
       </div>
     </div>
@@ -507,7 +507,7 @@ const StepConfirm = memo(function StepConfirm({ draft }) {
       <dl className="border border-slate-200 divide-y divide-slate-100">
         {rows.map(({ label, value, icon: Icon }) => (
           <div key={label} className="flex items-center gap-4 px-5 py-4">
-            <Icon size={14} className="text-[#0EA5E9] shrink-0" aria-hidden="true" />
+            <Icon size={14} className="text-primary shrink-0" aria-hidden="true" />
             <dt className="text-xs font-bold tracking-widest uppercase text-slate-600 w-20 shrink-0">{label}</dt>
             <dd className="text-sm text-slate-900 font-semibold">{label === "Time" ? formatTimeSlot(value) : value}</dd>
           </div>
@@ -605,13 +605,13 @@ export default function BookingProcess() {
   // ── Success screen ─────────────────────────────────────────
   if (success) {
     return (
-      <div className="min-h-[80vh] bg-[#F8FAFC] flex items-center justify-center px-4">
+      <div className="min-h-[80vh] bg-bg-dark flex items-center justify-center px-4">
         <div className="text-center flex flex-col items-center gap-6 max-w-md" role="status" aria-live="polite">
-          <div className="w-20 h-20 flex items-center justify-center bg-[#0EA5E9]">
-            <CalendarCheck size={36} className="text-[#0F172A]" strokeWidth={2} aria-hidden="true" />
+          <div className="w-20 h-20 flex items-center justify-center bg-primary">
+            <CalendarCheck size={36} className="text-text-primary" strokeWidth={2} aria-hidden="true" />
           </div>
           <div>
-            <span className="text-[11px] font-bold tracking-[0.3em] uppercase text-[#0EA5E9]">
+            <span className="text-[11px] font-bold tracking-[0.3em] uppercase text-primary">
               Booking Confirmed
             </span>
             <h2
@@ -633,7 +633,7 @@ export default function BookingProcess() {
           <div className="flex gap-3 flex-wrap justify-center">
             <button
               onClick={() => navigate("/dashboard")}
-              className="px-6 py-3 bg-[#0EA5E9] text-[#0F172A] font-bold text-sm tracking-widest uppercase hover:bg-white transition-colors duration-200"
+              className="px-6 py-3 bg-primary text-text-primary font-bold text-sm tracking-widest uppercase hover:bg-white transition-colors duration-200"
             >
               View Dashboard
             </button>
@@ -650,12 +650,12 @@ export default function BookingProcess() {
   }
 
   return (
-    <div className="bg-[#F8FAFC] min-h-screen">
+    <div className="bg-bg-dark min-h-screen">
 
       {/* ── Page header ─────────────────────────────────────── */}
-      <div className="bg-[#F1F5F9] border-b border-slate-200">
+      <div className="bg-bg-secondary border-b border-slate-200">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          <span className="text-[11px] font-bold tracking-[0.3em] uppercase text-[#0EA5E9]">
+          <span className="text-[11px] font-bold tracking-[0.3em] uppercase text-primary">
             Online Booking
           </span>
           <h1
@@ -726,9 +726,9 @@ export default function BookingProcess() {
                 key={s.id}
                 className={`h-1.5 transition-all duration-300 ${
                   s.id === currentStep
-                    ? "w-6 bg-[#0EA5E9]"
+                    ? "w-6 bg-primary"
                     : s.id < currentStep
-                    ? "w-3 bg-[#0EA5E9]/50"
+                    ? "w-3 bg-primary/50"
                     : "w-3 bg-slate-300"
                 }`}
               />
@@ -741,7 +741,7 @@ export default function BookingProcess() {
               onClick={goNext}
               disabled={!canProceed()}
               aria-label={`Proceed to step ${currentStep + 1}: ${STEPS[currentStep]?.label}`}
-              className="flex items-center gap-2 px-6 py-3 bg-[#0EA5E9] text-[#0F172A] text-sm font-bold tracking-widest uppercase hover:bg-white transition-colors duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-3 bg-primary text-text-primary text-sm font-bold tracking-widest uppercase hover:bg-white transition-colors duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
             >
               Next <ChevronRight size={15} strokeWidth={2.5} aria-hidden="true" />
             </button>
@@ -751,7 +751,7 @@ export default function BookingProcess() {
               onClick={handleSubmit}
               disabled={submitting}
               aria-busy={submitting}
-              className="flex items-center gap-2 px-6 py-3 bg-[#0EA5E9] text-[#0F172A] text-sm font-bold tracking-widest uppercase hover:bg-white transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-3 bg-primary text-text-primary text-sm font-bold tracking-widest uppercase hover:bg-white transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting ? (
                 <><Loader2 size={15} className="animate-spin" aria-hidden="true" /> Confirming…</>

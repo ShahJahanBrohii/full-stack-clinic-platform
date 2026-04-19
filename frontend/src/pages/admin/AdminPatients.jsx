@@ -10,6 +10,7 @@ import { BulkActionsBar } from "../../components/BulkActionsBar";
 function PatientModal({ patient, onClose, onSave }) {
   const [form, setForm] = useState({ ...patient });
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
   const [tab, setTab] = useState("profile");
   const [patientBookings, setPatientBookings] = useState([]);
   const [bookingsLoading, setBookingsLoading] = useState(false);
@@ -31,15 +32,21 @@ function PatientModal({ patient, onClose, onSave }) {
 
   const handleSave = async () => {
     setSaving(true);
-    await api.put(`/admin/patients/${form._id}`, form).catch(() => {});
-    onSave(form);
-    onClose();
-    setSaving(false);
+    setSaveError("");
+    try {
+      const response = await api.put(`/admin/patients/${form._id}`, form);
+      onSave(response.data?.patient || form);
+      onClose();
+    } catch (err) {
+      setSaveError(err.response?.data?.message || "Failed to save patient.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={onClose}>
-      <div className="w-full max-w-xl bg-[#0F172A] border border-white/10 shadow-2xl flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-xl bg-surface-dark border border-white/10 shadow-2xl flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 shrink-0">
           <div className="flex items-center gap-3">
@@ -70,6 +77,12 @@ function PatientModal({ patient, onClose, onSave }) {
         <div className="flex-1 overflow-y-auto p-6">
           {tab === "profile" ? (
             <div className="flex flex-col gap-4">
+              {saveError && (
+                <div className="flex items-center gap-2 p-3 border border-red-500/20 bg-red-500/5 text-red-400 text-xs">
+                  <AlertCircle size={13} />
+                  {saveError}
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 {[
                   { label: "Full Name", key: "name" },
@@ -116,7 +129,7 @@ function PatientModal({ patient, onClose, onSave }) {
               ) : patientBookings.length === 0 ? (
                 <p className="text-sm text-slate-600 text-center py-8">No bookings found for this patient.</p>
               ) : patientBookings.map((b) => {
-                const statusColors = { confirmed: "text-[#0EA5E9]", pending: "text-yellow-400", completed: "text-slate-400", cancelled: "text-red-400" };
+                const statusColors = { confirmed: "text-primary", pending: "text-yellow-400", completed: "text-slate-400", cancelled: "text-red-400" };
                 return (
                   <div key={b._id} className="flex items-center justify-between p-3 border border-white/8 bg-white/1">
                     <div>
@@ -138,7 +151,7 @@ function PatientModal({ patient, onClose, onSave }) {
           <div className="flex justify-end gap-2 px-6 py-4 border-t border-white/5 shrink-0">
             <button onClick={onClose} className="px-4 py-2 border border-white/10 text-slate-400 text-xs font-bold tracking-widest uppercase hover:text-white transition-colors">Cancel</button>
             <button onClick={handleSave} disabled={saving}
-              className="flex items-center gap-2 px-5 py-2 bg-accent text-[#0F172A] text-xs font-bold tracking-widest uppercase hover:bg-white transition-colors disabled:opacity-50">
+              className="flex items-center gap-2 px-5 py-2 bg-accent text-text-primary text-xs font-bold tracking-widest uppercase hover:bg-white transition-colors disabled:opacity-50">
               {saving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />} Save
             </button>
           </div>
@@ -175,9 +188,14 @@ export default function AdminPatients() {
 
   const handleSave = (updated) => setPatients((prev) => prev.map((p) => p._id === updated._id ? updated : p));
   const handleDelete = async (id) => {
-    await api.delete(`/admin/patients/${id}`).catch(() => {});
-    setPatients((prev) => prev.filter((p) => p._id !== id));
-    setDeleteTarget(null);
+    setError("");
+    try {
+      await api.delete(`/admin/patients/${id}`);
+      setPatients((prev) => prev.map((p) => (p._id === id ? { ...p, status: "inactive", isActive: false } : p)));
+      setDeleteTarget(null);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to deactivate patient.");
+    }
   };
   const toggleSort = (field) => { if (sortField === field) setSortDir((d) => d === "asc" ? "desc" : "asc"); else { setSortField(field); setSortDir("asc"); } };
 
@@ -203,11 +221,11 @@ export default function AdminPatients() {
       {viewTarget && <PatientModal patient={viewTarget} onClose={() => setViewTarget(null)} onSave={handleSave} />}
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setDeleteTarget(null)}>
-          <div className="w-full max-w-sm bg-[#0F172A] border border-red-500/20 p-6 flex flex-col gap-5" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-sm font-black text-white">Delete Patient Account</h3>
-            <p className="text-sm text-slate-400">This will permanently delete <strong className="text-white">{deleteTarget.name}</strong> and all their data.</p>
+          <div className="w-full max-w-sm bg-surface-dark border border-red-500/20 p-6 flex flex-col gap-5" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-sm font-black text-white">Deactivate Patient Account</h3>
+            <p className="text-sm text-slate-400">This will deactivate <strong className="text-white">{deleteTarget.name}</strong>. Their account can be reactivated later.</p>
             <div className="flex gap-2">
-              <button onClick={() => handleDelete(deleteTarget._id)} className="px-4 py-2 bg-red-500/20 border border-red-500/30 text-red-400 text-xs font-bold tracking-widest uppercase hover:bg-red-500/30">Delete</button>
+              <button onClick={() => handleDelete(deleteTarget._id)} className="px-4 py-2 bg-red-500/20 border border-red-500/30 text-red-400 text-xs font-bold tracking-widest uppercase hover:bg-red-500/30">Deactivate</button>
               <button onClick={() => setDeleteTarget(null)} className="px-4 py-2 border border-white/10 text-slate-500 text-xs font-bold tracking-widest uppercase">Cancel</button>
             </div>
           </div>
@@ -224,7 +242,7 @@ export default function AdminPatients() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <span className="text-[11px] font-bold tracking-[0.3em] uppercase text-accent">Management</span>
-          <h1 className="mt-1 text-3xl font-black text-white" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+          <h1 className="mt-1 text-3xl font-black text-slate-900" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
             PATIENTS <span className="text-slate-600">({filtered.length})</span>
           </h1>
         </div>
@@ -238,8 +256,8 @@ export default function AdminPatients() {
           { label: "Inactive", value: patients.filter((p) => p.status === "inactive").length },
         ].map(({ label, value, accent }) => (
           <div key={label} className={`p-4 border flex flex-col gap-1 ${accent ? "bg-accent border-accent" : "bg-white/2 border-white/8"}`}>
-            <p className={`text-2xl font-black ${accent ? "text-[#0F172A]" : "text-white"}`} style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>{value}</p>
-            <p className={`text-xs font-bold ${accent ? "text-[#0F172A]/70" : "text-slate-500"}`}>{label}</p>
+            <p className={`text-2xl font-black ${accent ? "text-text-primary" : "text-slate-900"}`} style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>{value}</p>
+            <p className={`text-xs font-bold ${accent ? "text-text-primary/70" : "text-slate-500"}`}>{label}</p>
           </div>
         ))}
       </div>
@@ -249,13 +267,13 @@ export default function AdminPatients() {
         <div className="relative flex-1 min-w-50 max-w-xs">
           <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600" />
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, email, condition…"
-            className="w-full bg-white/3 border border-white/10 pl-9 pr-8 py-2.5 text-xs text-white placeholder-slate-700 outline-none focus:border-accent transition-colors" />
-          {search && <button onClick={() => setSearch("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-600 hover:text-white"><X size={12} /></button>}
+            className="w-full bg-white/60 border border-slate-300 pl-9 pr-8 py-2.5 text-xs text-slate-900 placeholder-slate-500 outline-none focus:border-accent transition-colors" />
+          {search && <button onClick={() => setSearch("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-900"><X size={12} /></button>}
         </div>
         {["all", "active", "inactive"].map((s) => (
           <button key={s} onClick={() => setStatusFilter(s)}
             className={`px-3 py-2 text-[10px] font-bold tracking-widest border transition-all duration-150 capitalize ${
-              statusFilter === s ? "bg-[#0EA5E9] border-[#0EA5E9] text-[#0F172A]" : "border-white/10 text-slate-500 hover:text-white hover:border-white/25"
+              statusFilter === s ? "bg-primary border-primary text-text-primary" : "border-white/10 text-slate-500 hover:text-slate-900 hover:border-slate-400"
             }`}>{s === "all" ? "All Patients" : s}</button>
         ))}
       </div>
@@ -297,10 +315,10 @@ export default function AdminPatients() {
               <tr key={p._id} className="hover:bg-white/2 transition-colors duration-100">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 flex items-center justify-center bg-[#0EA5E9]/10 border border-[#0EA5E9]/20 shrink-0">
-                      <User size={11} className="text-[#0EA5E9]" />
+                    <div className="w-7 h-7 flex items-center justify-center bg-primary/10 border border-primary/20 shrink-0">
+                      <User size={11} className="text-primary" />
                     </div>
-                    <span className="font-bold text-white">{p.name}</span>
+                    <span className="font-bold text-slate-900">{p.name}</span>
                   </div>
                 </td>
                 <td className="px-4 py-3">
@@ -308,17 +326,17 @@ export default function AdminPatients() {
                   <p className="text-slate-600 text-[10px]">{p.phone}</p>
                 </td>
                 <td className="px-4 py-3 text-slate-500 max-w-37.5 truncate">{p.condition || "—"}</td>
-                <td className="px-4 py-3 text-white font-bold text-center">{p.totalBookings}</td>
+                <td className="px-4 py-3 text-slate-900 font-bold text-center">{p.totalBookings}</td>
                 <td className="px-4 py-3 text-slate-400 text-center">{p.completedSessions}</td>
                 <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{new Date(p.joinDate).toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "numeric" })}</td>
                 <td className="px-4 py-3">
-                  <span className={`text-[10px] font-bold px-2 py-0.5 capitalize ${p.status === "active" ? "text-[#0EA5E9] bg-[#0EA5E9]/10" : "text-slate-500 bg-slate-500/10"}`}>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 capitalize ${p.status === "active" ? "text-primary bg-primary/10" : "text-slate-500 bg-slate-500/10"}`}>
                     {p.status}
                   </span>
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <button onClick={() => setViewTarget(p)} className="p-1.5 text-slate-600 hover:text-[#0EA5E9] transition-colors" title="View & Edit"><Eye size={13} /></button>
+                    <button onClick={() => setViewTarget(p)} className="p-1.5 text-slate-600 hover:text-primary transition-colors" title="View & Edit"><Eye size={13} /></button>
                     <button onClick={() => setDeleteTarget(p)} className="p-1.5 text-slate-600 hover:text-red-400 transition-colors" title="Delete"><Trash2 size={13} /></button>
                   </div>
                 </td>

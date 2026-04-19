@@ -10,6 +10,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
+import { useClinicSettings } from "../context/ClinicSettingsContext";
 
 const CLINIC_LINKS = [
   { label: "Home", to: "/" },
@@ -35,6 +36,18 @@ const SOCIALS = [
   { icon: Youtube, label: "YouTube", href: "#" },
 ];
 
+function parsePhoneNumbers(rawPhone) {
+  if (!rawPhone) return [];
+  return String(rawPhone)
+    .split(/[|,/\\n]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function toTelHref(phoneNumber) {
+  return `tel:${String(phoneNumber || "").replace(/[^\d+]/g, "")}`;
+}
+
 function NavLinkList({ links }) {
   return (
     <ul className="flex flex-col gap-2.5">
@@ -45,7 +58,7 @@ function NavLinkList({ links }) {
             className="text-sm text-slate-600 hover:text-slate-900 transition-colors duration-150 flex items-center gap-1.5 group"
           >
             <span
-              className="w-0 group-hover:w-3 h-px bg-[#0EA5E9] transition-all duration-200 inline-block"
+              className="w-0 group-hover:w-3 h-px bg-primary transition-all duration-200 inline-block"
               aria-hidden="true"
             />
             {label}
@@ -58,20 +71,22 @@ function NavLinkList({ links }) {
 
 export default function Footer() {
   const { user } = useAuth();
+  const { settings } = useClinicSettings();
   const year = new Date().getFullYear();
   const isAdmin = user?.role === "admin";
+  const phoneNumbers = parsePhoneNumbers(settings.phone);
   const patientLinks = user
     ? (isAdmin ? [{ label: "Admin Dashboard", to: "/admin" }] : PATIENT_LINKS_AUTHED)
     : PATIENT_LINKS_GUEST;
 
   return (
-    <footer className="bg-[#F1F5F9] border-t border-slate-200">
+    <footer className="bg-bg-secondary border-t border-slate-200">
 
       {/* ── CTA Banner ───────────────────────────────────────────── */}
       <div className="border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div>
-            <p className="text-[11px] text-[#0EA5E9] tracking-[0.25em] uppercase font-semibold mb-1">
+            <p className="text-[11px] text-primary tracking-[0.25em] uppercase font-semibold mb-1">
               {isAdmin ? "Admin Workspace" : "Ready to recover faster?"}
             </p>
             <h3
@@ -83,7 +98,7 @@ export default function Footer() {
           </div>
           <NavLink
             to={user ? (isAdmin ? "/admin" : "/book") : "/register"}
-            className="flex items-center gap-2 px-7 py-3 bg-[#0EA5E9] text-[#F8FAFC] font-bold text-sm tracking-widest uppercase hover:bg-[#0284C7] transition-colors duration-200 shrink-0"
+            className="flex items-center gap-2 px-7 py-3 bg-primary text-bg-dark font-bold text-sm tracking-widest uppercase hover:bg-primary-dark transition-colors duration-200 shrink-0"
           >
             {user ? (isAdmin ? "Open Admin Panel" : "Schedule Now") : "Get Started"}
             <ArrowUpRight size={15} strokeWidth={2.5} aria-hidden="true" />
@@ -96,26 +111,26 @@ export default function Footer() {
 
         {/* Brand column */}
         <div className="lg:col-span-1 flex flex-col gap-5">
-          <NavLink to="/" className="flex items-center gap-3 group select-none w-fit" aria-label="Ali's Clinic — Home">
-            <div className="w-9 h-9 flex items-center justify-center bg-[#0EA5E9] group-hover:bg-white transition-colors duration-200">
-              <Activity size={18} strokeWidth={2.5} className="text-white group-hover:text-[#F8FAFC]" aria-hidden="true" />
+          <NavLink to="/" className="flex items-center gap-3 group select-none w-fit" aria-label={`${settings.clinicName} — Home`}>
+            <div className="w-9 h-9 flex items-center justify-center bg-primary group-hover:bg-white transition-colors duration-200">
+              <Activity size={18} strokeWidth={2.5} className="text-white group-hover:text-bg-dark" aria-hidden="true" />
             </div>
             <div className="flex flex-col leading-none">
               <span
                 className="text-slate-900 font-black text-lg"
                 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, letterSpacing: "-0.02em" }}
               >
-                Ali's<span className="text-[#0EA5E9]">Clinic</span>
+                {settings.clinicName}
               </span>
               <span className="text-[10px] text-slate-500 tracking-[0.2em] uppercase font-medium">
-                Sports Medicine
+                {settings.tagline}
               </span>
             </div>
           </NavLink>
 
           <p className="text-slate-500 text-sm leading-relaxed">
-            Evidence-based sports injury rehabilitation led by Physical Education &amp; Sports Sciences specialists.
-            Helping athletes move better, recover stronger.
+            Expert care by trained professionals with personalized treatment plans.
+            Safe, effective rehabilitation to help you move better, feel better, and live better.
           </p>
 
           {/* Social links */}
@@ -128,7 +143,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={href === "#" ? (e) => e.preventDefault() : undefined}
-                className="w-9 h-9 flex items-center justify-center border border-slate-300 text-slate-600 hover:text-[#0EA5E9] hover:border-[#0EA5E9]/40 transition-all duration-200"
+                className="w-9 h-9 flex items-center justify-center border border-slate-300 text-slate-600 hover:text-primary hover:border-primary/40 transition-all duration-200"
               >
                 <Icon size={15} aria-hidden="true" />
               </a>
@@ -138,7 +153,7 @@ export default function Footer() {
 
         {/* Clinic links */}
         <div className="flex flex-col gap-4">
-          <h4 className="text-[11px] font-bold tracking-[0.2em] uppercase text-[#0EA5E9]">
+          <h4 className="text-[11px] font-bold tracking-[0.2em] uppercase text-primary">
             Clinic
           </h4>
           <NavLinkList links={CLINIC_LINKS} />
@@ -146,7 +161,7 @@ export default function Footer() {
 
         {/* Patient links — auth-aware */}
         <div className="flex flex-col gap-4">
-          <h4 className="text-[11px] font-bold tracking-[0.2em] uppercase text-[#0EA5E9]">
+          <h4 className="text-[11px] font-bold tracking-[0.2em] uppercase text-primary">
             {user ? (isAdmin ? "Admin" : "Patient") : "Get Started"}
           </h4>
           <NavLinkList links={patientLinks} />
@@ -154,30 +169,41 @@ export default function Footer() {
 
         {/* Contact column */}
         <div className="flex flex-col gap-4">
-          <h4 className="text-[11px] font-bold tracking-[0.2em] uppercase text-[#0EA5E9]">
+          <h4 className="text-[11px] font-bold tracking-[0.2em] uppercase text-primary">
             Contact
           </h4>
           <ul className="flex flex-col gap-3">
             <li className="flex items-start gap-3 text-sm text-slate-500">
-              <MapPin size={15} className="text-[#0EA5E9] shrink-0 mt-0.5" aria-hidden="true" />
-              <span>123 Recovery Road, Sports District, Karachi</span>
+              <MapPin size={15} className="text-primary shrink-0 mt-0.5" aria-hidden="true" />
+              <span>{settings.address}</span>
             </li>
+            {phoneNumbers.length > 0 ? (
+              phoneNumbers.map((phone, index) => (
+                <li key={phone}>
+                  <a
+                    href={toTelHref(phone)}
+                    className="flex items-center gap-3 text-sm text-slate-600 hover:text-slate-900 transition-colors duration-150"
+                  >
+                    {index === 0 ? <Phone size={15} className="text-primary shrink-0" aria-hidden="true" /> : <span className="w-3.75" aria-hidden="true" />}
+                    {phone}
+                  </a>
+                </li>
+              ))
+            ) : (
+              <li>
+                <span className="flex items-center gap-3 text-sm text-slate-500">
+                  <Phone size={15} className="text-primary shrink-0" aria-hidden="true" />
+                  Not available
+                </span>
+              </li>
+            )}
             <li>
               <a
-                href="tel:+923001234567"
+                href={`mailto:${settings.clinicEmail}`}
                 className="flex items-center gap-3 text-sm text-slate-600 hover:text-slate-900 transition-colors duration-150"
               >
-                <Phone size={15} className="text-[#0EA5E9] shrink-0" aria-hidden="true" />
-                +92 300 123 4567
-              </a>
-            </li>
-            <li>
-              <a
-                href="mailto:info@apexclinic.pk"
-                className="flex items-center gap-3 text-sm text-slate-600 hover:text-slate-900 transition-colors duration-150"
-              >
-                <Mail size={15} className="text-[#0EA5E9] shrink-0" aria-hidden="true" />
-                info@apexclinic.pk
+                <Mail size={15} className="text-primary shrink-0" aria-hidden="true" />
+                {settings.clinicEmail}
               </a>
             </li>
           </ul>
@@ -187,9 +213,9 @@ export default function Footer() {
             <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-600 mb-1.5">
               Clinic Hours
             </p>
-            <p className="text-sm text-slate-600">Mon – Fri &nbsp;·&nbsp; 9:00 AM – 7:00 PM</p>
-            <p className="text-sm text-slate-600">Saturday &nbsp;·&nbsp; 10:00 AM – 4:00 PM</p>
-            <p className="text-sm text-slate-600 mt-1">Sunday — Closed</p>
+            <p className="text-sm text-slate-600">Mon – Fri &nbsp;·&nbsp; {settings.availability.Monday.from} - {settings.availability.Friday.to}</p>
+            <p className="text-sm text-slate-600">Saturday &nbsp;·&nbsp; {settings.availability.Saturday.from} - {settings.availability.Saturday.to}</p>
+            <p className="text-sm text-slate-600 mt-1">Sunday — {settings.availability.Sunday.open ? "Open" : "Closed"}</p>
           </div>
         </div>
       </div>
@@ -197,8 +223,8 @@ export default function Footer() {
       {/* ── Bottom bar ───────────────────────────────────────────── */}
       <div className="border-t border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-600">
-          <span>© {year} Ali's Clinic. All rights reserved.</span>
-          <span className="tracking-wide">Built for athletes. Powered by precision.</span>
+          <span>© {year} {settings.clinicName}. All rights reserved.</span>
+          <span className="tracking-wide">Your recovery is our priority.</span>
         </div>
       </div>
     </footer>

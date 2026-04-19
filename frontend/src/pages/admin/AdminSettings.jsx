@@ -19,7 +19,7 @@ function SettingRow({ label, desc, children }) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 py-5 border-b border-white/5">
       <div className="max-w-xs">
-        <p className="text-sm font-bold text-white">{label}</p>
+        <p className="text-sm font-bold text-slate-900">{label}</p>
         {desc && <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">{desc}</p>}
       </div>
       <div className="sm:min-w-65">{children}</div>
@@ -30,7 +30,7 @@ function SettingRow({ label, desc, children }) {
 function Input({ value, onChange, placeholder, type = "text" }) {
   return (
     <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
-      className="w-full bg-white/3 border border-white/10 px-3 py-2.5 text-sm text-white placeholder-slate-700 outline-none focus:border-[accent] transition-colors duration-150" />
+      className="w-full bg-white/60 border border-slate-300 px-3 py-2.5 text-sm text-slate-900 placeholder-slate-500 outline-none focus:border-[accent] transition-colors duration-150" />
   );
 }
 
@@ -38,7 +38,7 @@ function Toggle({ checked, onChange }) {
   return (
     <button onClick={() => onChange(!checked)} aria-checked={checked} role="switch"
       className={`relative w-10 h-5 shrink-0 transition-colors duration-200 ${checked ? "bg-[accent]" : "bg-white/10"}`}>
-      <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-[#0F172A] transition-transform duration-200 ${checked ? "translate-x-5" : "translate-x-0"}`} />
+      <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-surface-dark transition-transform duration-200 ${checked ? "translate-x-5" : "translate-x-0"}`} />
     </button>
   );
 }
@@ -51,7 +51,7 @@ function SaveBar({ onSave, saving, saved, error }) {
         {error && <p className="text-xs text-red-400 flex items-center gap-1.5"><AlertCircle size={12} /> {error}</p>}
       </div>
       <button onClick={onSave} disabled={saving}
-        className="flex items-center gap-2 px-5 py-2.5 bg-[accent] text-[#0F172A] text-xs font-bold tracking-widest uppercase hover:bg-white transition-colors disabled:opacity-50">
+        className="flex items-center gap-2 px-5 py-2.5 bg-[accent] text-text-primary text-xs font-bold tracking-widest uppercase hover:bg-white transition-colors disabled:opacity-50">
         {saving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />} Save Changes
       </button>
     </div>
@@ -61,10 +61,10 @@ function SaveBar({ onSave, saving, saved, error }) {
 // ── Section: Clinic Info ───────────────────────────────────────────────────────
 function ClinicInfo() {
   const [form, setForm] = useState({
-    clinicName: "Ali's Clinic", tagline: "Sports Medicine & Rehabilitation",
-    address: "123 Recovery Road, Sports District, Karachi",
-    phone: "+92 300 123 4567", email: "info@apexclinic.pk",
-    website: "https://apexclinic.pk", currency: "PKR",
+    clinicName: "Sport Injuries Rehab Center", tagline: "Rehab • Recover • Rebuild • Return Stronger",
+    address: "Sports District, Karachi",
+    phone: "03318348748 | 03703699444", email: "contact@sportinjuriesrehabcenter.pk",
+    website: "https://sportinjuriesrehabcenter.pk", currency: "PKR",
   });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -72,10 +72,18 @@ function ClinicInfo() {
   const f = (key) => (val) => setForm((p) => ({ ...p, [key]: val }));
 
   const save = async () => {
-    setSaving(true); setSaved(false); setError("");
-    await api.put("/admin/settings/clinic", form).catch(() => {});
-    setSaving(false); setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    setSaving(true);
+    setSaved(false);
+    setError("");
+    try {
+      await api.put("/admin/settings/clinic", form);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || "Failed to save clinic settings.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -88,7 +96,7 @@ function ClinicInfo() {
       </SettingRow>
       <SettingRow label="Physical Address" desc="Shown in the footer and contact section.">
         <textarea value={form.address} onChange={(e) => f("address")(e.target.value)} rows={2}
-          className="w-full bg-white/3 border border-white/10 px-3 py-2.5 text-sm text-white outline-none focus:border-[accent] transition-colors resize-none" />
+          className="w-full bg-white/60 border border-slate-300 px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-[accent] transition-colors resize-none" />
       </SettingRow>
       <SettingRow label="Contact Phone" desc="Clickable phone link in the footer.">
         <Input value={form.phone} onChange={f("phone")} placeholder="+92 300 000 0000" />
@@ -101,7 +109,7 @@ function ClinicInfo() {
       </SettingRow>
       <SettingRow label="Currency" desc="Used for displaying prices throughout the site.">
         <select value={form.currency} onChange={(e) => f("currency")(e.target.value)}
-          className="w-full bg-white/3 border border-white/10 px-3 py-2.5 text-sm text-white outline-none focus:border-[accent] transition-colors appearance-none">
+          className="w-full bg-white/60 border border-slate-300 px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-[accent] transition-colors appearance-none">
           <option value="PKR">PKR — Pakistani Rupee</option>
           <option value="USD">USD — US Dollar</option>
           <option value="GBP">GBP — British Pound</option>
@@ -127,15 +135,24 @@ function Availability() {
   const [bufferTime, setBufferTime] = useState("15");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
 
   const toggleDay = (day) => setSchedule((p) => ({ ...p, [day]: { ...p[day], open: !p[day].open } }));
   const updateTime = (day, key, val) => setSchedule((p) => ({ ...p, [day]: { ...p[day], [key]: val } }));
 
   const save = async () => {
     setSaving(true);
-    await api.put("/admin/settings/availability", { schedule, slotDuration, bufferTime }).catch(() => {});
-    setSaving(false); setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    setSaved(false);
+    setError("");
+    try {
+      await api.put("/admin/settings/availability", { schedule, slotDuration, bufferTime });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || "Failed to save availability settings.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -148,14 +165,14 @@ function Availability() {
           return (
             <div key={day} className={`flex items-center gap-4 p-3 border transition-all duration-150 ${d.open ? "border-white/8 bg-white/2" : "border-white/5 opacity-50"}`}>
               <Toggle checked={d.open} onChange={() => toggleDay(day)} />
-              <span className="text-sm font-bold text-white w-24 shrink-0">{day}</span>
+              <span className="text-sm font-bold text-slate-900 w-24 shrink-0">{day}</span>
               {d.open ? (
                 <div className="flex items-center gap-2 flex-1">
                   <input type="time" value={d.from} onChange={(e) => updateTime(day, "from", e.target.value)}
-                    className="bg-white/3 border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-[accent] transition-colors" />
+                    className="bg-white/60 border border-slate-300 px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-[accent] transition-colors" />
                   <span className="text-slate-600 text-xs">to</span>
                   <input type="time" value={d.to} onChange={(e) => updateTime(day, "to", e.target.value)}
-                    className="bg-white/3 border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-[accent] transition-colors" />
+                    className="bg-white/60 border border-slate-300 px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-[accent] transition-colors" />
                 </div>
               ) : (
                 <span className="text-xs text-slate-700 italic">Closed</span>
@@ -167,17 +184,17 @@ function Availability() {
 
       <SettingRow label="Appointment Slot Duration" desc="How long each booking slot lasts (minutes).">
         <select value={slotDuration} onChange={(e) => setSlotDuration(e.target.value)}
-          className="w-full bg-white/3 border border-white/10 px-3 py-2.5 text-sm text-white outline-none focus:border-[accent] transition-colors appearance-none">
+          className="w-full bg-white/60 border border-slate-300 px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-[accent] transition-colors appearance-none">
           {["30", "45", "60", "75", "90"].map((v) => <option key={v} value={v}>{v} minutes</option>)}
         </select>
       </SettingRow>
       <SettingRow label="Buffer Between Appointments" desc="Gap between sessions (minutes).">
         <select value={bufferTime} onChange={(e) => setBufferTime(e.target.value)}
-          className="w-full bg-white/3 border border-white/10 px-3 py-2.5 text-sm text-white outline-none focus:border-[accent] transition-colors appearance-none">
+          className="w-full bg-white/60 border border-slate-300 px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-[accent] transition-colors appearance-none">
           {["0", "10", "15", "20", "30"].map((v) => <option key={v} value={v}>{v} minutes</option>)}
         </select>
       </SettingRow>
-      <SaveBar onSave={save} saving={saving} saved={saved} />
+      <SaveBar onSave={save} saving={saving} saved={saved} error={error} />
     </div>
   );
 }
@@ -191,13 +208,22 @@ function Notifications() {
   });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
   const f = (key) => (val) => setSettings((p) => ({ ...p, [key]: val }));
 
   const save = async () => {
     setSaving(true);
-    await api.put("/admin/settings/notifications", settings).catch(() => {});
-    setSaving(false); setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    setSaved(false);
+    setError("");
+    try {
+      await api.put("/admin/settings/notifications", settings);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || "Failed to save notification settings.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const items = [
@@ -219,11 +245,11 @@ function Notifications() {
       ))}
       <SettingRow label="Reminder Lead Time" desc="How many hours before appointment to send reminder.">
         <select value={settings.reminderHours} onChange={(e) => f("reminderHours")(e.target.value)}
-          className="w-full bg-white/3 border border-white/10 px-3 py-2.5 text-sm text-white outline-none focus:border-[accent] transition-colors appearance-none">
+          className="w-full bg-white/60 border border-slate-300 px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-[accent] transition-colors appearance-none">
           {["2", "6", "12", "24", "48"].map((v) => <option key={v} value={v}>{v} hours before</option>)}
         </select>
       </SettingRow>
-      <SaveBar onSave={save} saving={saving} saved={saved} />
+      <SaveBar onSave={save} saving={saving} saved={saved} error={error} />
     </div>
   );
 }
@@ -234,14 +260,23 @@ function AdminProfile() {
   const [form, setForm] = useState({ name: user?.name || "", email: user?.email || "", phone: user?.phone || "", bio: user?.bio || "" });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
   const f = (key) => (val) => setForm((p) => ({ ...p, [key]: val }));
 
   const save = async () => {
     setSaving(true);
-    await api.put("/auth/profile", form).catch(() => {});
-    updateUser(form);
-    setSaving(false); setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    setSaved(false);
+    setError("");
+    try {
+      const response = await api.put("/auth/profile", form);
+      updateUser(response?.data?.user || form);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || "Failed to update profile.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -251,10 +286,10 @@ function AdminProfile() {
       <SettingRow label="Phone Number"><Input value={form.phone} onChange={f("phone")} placeholder="+92 300 000 0000" /></SettingRow>
       <SettingRow label="Bio / Credentials" desc="Displayed on the about/team page.">
         <textarea value={form.bio} onChange={(e) => f("bio")(e.target.value)} rows={3}
-          className="w-full bg-white/3 border border-white/10 px-3 py-2.5 text-sm text-white outline-none focus:border-[accent] transition-colors resize-none placeholder-slate-700"
+          className="w-full bg-white/60 border border-slate-300 px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-[accent] transition-colors resize-none placeholder-slate-500"
           placeholder="e.g. BSc Physical Education & Sports Sciences, Chartered Physiotherapist…" />
       </SettingRow>
-      <SaveBar onSave={save} saving={saving} saved={saved} />
+      <SaveBar onSave={save} saving={saving} saved={saved} error={error} />
     </div>
   );
 }
@@ -300,7 +335,7 @@ export default function AdminSettings() {
     <div className="p-6 lg:p-8 flex flex-col gap-6">
       <div>
         <span className="text-[11px] font-bold tracking-[0.3em] uppercase text-[accent]">Configuration</span>
-        <h1 className="mt-1 text-3xl font-black text-white" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>SETTINGS</h1>
+        <h1 className="mt-1 text-3xl font-black text-slate-900" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>SETTINGS</h1>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
@@ -309,7 +344,7 @@ export default function AdminSettings() {
           {TABS.map(({ id, label, icon: Icon }) => (
             <button key={id} onClick={() => setActiveTab(id)}
               className={`flex items-center gap-2.5 px-3 py-2.5 text-xs font-bold tracking-widest uppercase whitespace-nowrap transition-all duration-150 border-b-2 lg:border-b-0 lg:border-l-2 ${
-                activeTab === id ? "border-[accent] text-[accent] bg-[accent]/5" : "border-transparent text-slate-500 hover:text-white"
+                activeTab === id ? "border-[accent] text-[accent] bg-[accent]/5" : "border-transparent text-slate-500 hover:text-slate-900"
               }`}>
               <Icon size={13} /> {label}
             </button>

@@ -146,6 +146,10 @@ export const authAPI = {
   getPatientStories: (params) => api.get("/auth/patient-stories", { params }),
 };
 
+export const clinicSettingsAPI = {
+  getPublic: () => api.get("/public/clinic-settings"),
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // SERVICES API
 // ─────────────────────────────────────────────────────────────────────────────
@@ -296,6 +300,9 @@ export const videosAPI = {
 export const videoProgressAPI = {
   /** GET /video-progress  — list all progress records for the current user */
   getAll: () => api.get("/video-progress"),
+
+  /** GET /video-progress/stats/summary  — summary metrics for the current user */
+  getSummary: () => api.get("/video-progress/stats/summary"),
 
   /** GET /video-progress/:videoId  — get progress for a specific video */
   getByVideoId: (videoId) => api.get(`/video-progress/${videoId}`),

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../context/ToastContext";
+import { useClinicSettings } from "../context/ClinicSettingsContext";
 
 // ── Password strength checker ─────────────────────────────────────────────────
 const STRENGTH_RULES = [
@@ -74,6 +75,7 @@ function PasswordStrength({ password, id }) {
 export default function Register() {
   const { register, user, loading: authLoading } = useAuth();
   const { success: showSuccessToast, info: showInfoToast } = useToast();
+  const { settings } = useClinicSettings();
   const navigate = useNavigate();
   const id = useId();
 
@@ -147,7 +149,7 @@ export default function Register() {
     setLoading(false);
 
     if (result.success) {
-      showSuccessToast("Registration successful! Welcome to Ali's Clinic 🎉");
+      showSuccessToast(`Registration successful! Welcome to ${settings.clinicName} 🎉`);
       showInfoToast("Confirmation email sent to " + form.email.trim());
       setSuccess(true);
       setTimeout(() => navigate("/dashboard"), 2000);
@@ -161,8 +163,8 @@ export default function Register() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center" role="status" aria-live="polite">
         <div className="text-center flex flex-col items-center gap-5">
-          <div className="w-16 h-16 flex items-center justify-center bg-[#0EA5E9]">
-            <CheckCircle2 size={30} className="text-[#0F172A]" strokeWidth={2.5} aria-hidden="true" />
+          <div className="w-16 h-16 flex items-center justify-center bg-primary">
+            <CheckCircle2 size={30} className="text-text-primary" strokeWidth={2.5} aria-hidden="true" />
           </div>
           <div>
             <h2
@@ -175,7 +177,7 @@ export default function Register() {
               Redirecting you to your dashboard…
             </p>
           </div>
-          <Loader2 size={18} className="text-[#0EA5E9] animate-spin" aria-hidden="true" />
+          <Loader2 size={18} className="text-primary animate-spin" aria-hidden="true" />
         </div>
       </div>
     );
@@ -185,21 +187,21 @@ export default function Register() {
     <div className="min-h-screen bg-slate-50 flex">
 
       {/* ── Left panel — branding ───────────────────────────────── */}
-      <div className="hidden lg:flex flex-col justify-between w-[42%] bg-[#0F172A] border-r border-primary/30 p-12 relative overflow-hidden">
+      <div className="hidden lg:flex flex-col justify-between w-[42%] bg-surface-dark border-r border-primary/30 p-12 relative overflow-hidden">
 
-        <NavLink to="/" className="flex items-center gap-3 group w-fit relative z-10" aria-label="Ali's Clinic — Home">
-          <div className="w-9 h-9 flex items-center justify-center bg-[#0EA5E9]">
-            <Activity size={18} strokeWidth={2.5} className="text-[#0F172A]" aria-hidden="true" />
+        <NavLink to="/" className="flex items-center gap-3 group w-fit relative z-10" aria-label={`${settings.clinicName} — Home`}>
+          <div className="w-9 h-9 flex items-center justify-center bg-primary">
+            <Activity size={18} strokeWidth={2.5} className="text-text-primary" aria-hidden="true" />
           </div>
           <div className="flex flex-col leading-none">
             <span
               className="text-white font-black text-lg"
               style={{ fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "-0.02em" }}
             >
-              Ali's<span className="text-[#0EA5E9]">Clinic</span>
+              {settings.clinicName}
             </span>
             <span className="text-[10px] text-sky-100/80 tracking-[0.2em] uppercase font-medium">
-              Sports Medicine
+              {settings.tagline}
             </span>
           </div>
         </NavLink>
@@ -213,7 +215,7 @@ export default function Register() {
             <br />
             RECOVERY
             <br />
-            <span className="text-[#0EA5E9]">STARTS HERE.</span>
+            <span className="text-primary">STARTS HERE.</span>
           </h2>
           <p className="mt-5 text-sky-100/90 text-sm leading-relaxed max-w-xs">
             Create your free patient account to track progress and access personalised exercise videos.
@@ -227,7 +229,7 @@ export default function Register() {
               "Appointment reminders via email",
             ].map((perk) => (
               <li key={perk} className="flex items-center gap-3 text-sm text-sky-100/90">
-                <CheckCircle2 size={14} className="text-[#0EA5E9] shrink-0" aria-hidden="true" />
+                <CheckCircle2 size={14} className="text-primary shrink-0" aria-hidden="true" />
                 {perk}
               </li>
             ))}
@@ -243,22 +245,22 @@ export default function Register() {
       <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-8 py-12 overflow-y-auto">
 
         {/* Mobile logo */}
-        <NavLink to="/" className="flex lg:hidden items-center gap-3 mb-8 group" aria-label="Ali's Clinic — Home">
+        <NavLink to="/" className="flex lg:hidden items-center gap-3 mb-8 group" aria-label={`${settings.clinicName} — Home`}>
           <div className="w-8 h-8 flex items-center justify-center bg-gradient-primary">
-            <Activity size={16} strokeWidth={2.5} className="text-[#0F172A]" aria-hidden="true" />
+            <Activity size={16} strokeWidth={2.5} className="text-text-primary" aria-hidden="true" />
           </div>
           <span
             className="text-white font-black text-base"
             style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
           >
-            Ali's<span className="text-accent">Clinic</span>
+            {settings.clinicName}
           </span>
         </NavLink>
 
         <div className="w-full max-w-md bg-white border border-slate-200 rounded-xl shadow-sm p-6 sm:p-8">
           {/* Header */}
           <div className="mb-8">
-            <span className="text-[11px] font-bold tracking-[0.3em] uppercase text-[#0EA5E9]">
+            <span className="text-[11px] font-bold tracking-[0.3em] uppercase text-primary">
               New Patient
             </span>
             <h1
@@ -271,7 +273,7 @@ export default function Register() {
               Already have an account?{" "}
               <NavLink
                 to="/login"
-                className="text-[#0EA5E9] hover:text-[#F97316] transition-colors duration-150 font-semibold"
+                className="text-primary hover:text-accent transition-colors duration-150 font-semibold"
               >
                 Sign in
               </NavLink>
@@ -296,7 +298,7 @@ export default function Register() {
             {/* Full name */}
             <div className="flex flex-col gap-2">
               <label htmlFor={`${id}-name`} className="text-xs font-bold tracking-widest uppercase text-slate-500">
-                Full Name <span className="text-[#F97316]" aria-hidden="true">*</span>
+                Full Name <span className="text-accent" aria-hidden="true">*</span>
               </label>
               <input
                 id={`${id}-name`}
@@ -309,7 +311,7 @@ export default function Register() {
                 required
                 aria-invalid={!!fieldErrors.name}
                 aria-describedby={fieldErrors.name ? `${id}-name-err` : undefined}
-                className={`w-full bg-white border px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-[#0EA5E9] transition-colors duration-200 ${
+                className={`w-full bg-white border px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-primary transition-colors duration-200 ${
                   fieldErrors.name ? "border-red-500/60" : "border-slate-300"
                 }`}
               />
@@ -321,7 +323,7 @@ export default function Register() {
             {/* Email */}
             <div className="flex flex-col gap-2">
               <label htmlFor={`${id}-email`} className="text-xs font-bold tracking-widest uppercase text-slate-500">
-                Email Address <span className="text-[#F97316]" aria-hidden="true">*</span>
+                Email Address <span className="text-accent" aria-hidden="true">*</span>
               </label>
               <input
                 id={`${id}-email`}
@@ -334,7 +336,7 @@ export default function Register() {
                 required
                 aria-invalid={!!fieldErrors.email}
                 aria-describedby={fieldErrors.email ? `${id}-email-err` : undefined}
-                className={`w-full bg-white border px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-[#0EA5E9] transition-colors duration-200 ${
+                className={`w-full bg-white border px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-primary transition-colors duration-200 ${
                   fieldErrors.email ? "border-red-500/60" : "border-slate-300"
                 }`}
               />
@@ -359,7 +361,7 @@ export default function Register() {
                 autoComplete="tel"
                 aria-invalid={!!fieldErrors.phone}
                 aria-describedby={fieldErrors.phone ? `${id}-phone-err` : undefined}
-                className={`w-full bg-white border px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-[#0EA5E9] transition-colors duration-200 ${
+                className={`w-full bg-white border px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-primary transition-colors duration-200 ${
                   fieldErrors.phone ? "border-red-500/60" : "border-slate-300"
                 }`}
               />
@@ -371,7 +373,7 @@ export default function Register() {
             {/* Password */}
             <div className="flex flex-col gap-2">
               <label htmlFor={`${id}-password`} className="text-xs font-bold tracking-widest uppercase text-slate-500">
-                Password <span className="text-[#F97316]" aria-hidden="true">*</span>
+                Password <span className="text-accent" aria-hidden="true">*</span>
               </label>
               <div className="relative">
                 <input
@@ -385,7 +387,7 @@ export default function Register() {
                   required
                   aria-invalid={!!fieldErrors.password}
                   aria-describedby={`${id}-strength${fieldErrors.password ? ` ${id}-password-err` : ""}`}
-                  className={`w-full bg-white border px-4 py-3 pr-11 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-[#0EA5E9] transition-colors duration-200 ${
+                  className={`w-full bg-white border px-4 py-3 pr-11 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-primary transition-colors duration-200 ${
                     fieldErrors.password ? "border-red-500/60" : "border-slate-300"
                   }`}
                 />
@@ -408,7 +410,7 @@ export default function Register() {
             {/* Confirm password */}
             <div className="flex flex-col gap-2">
               <label htmlFor={`${id}-confirm`} className="text-xs font-bold tracking-widest uppercase text-slate-500">
-                Confirm Password <span className="text-[#F97316]" aria-hidden="true">*</span>
+                Confirm Password <span className="text-accent" aria-hidden="true">*</span>
               </label>
               <div className="relative">
                 <input
@@ -422,7 +424,7 @@ export default function Register() {
                   required
                   aria-invalid={!!fieldErrors.confirmPassword}
                   aria-describedby={fieldErrors.confirmPassword ? `${id}-confirm-err` : undefined}
-                  className={`w-full bg-white border px-4 py-3 pr-11 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-[#0EA5E9] transition-colors duration-200 ${
+                  className={`w-full bg-white border px-4 py-3 pr-11 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-primary transition-colors duration-200 ${
                     fieldErrors.confirmPassword ? "border-red-500/60" : "border-slate-300"
                   }`}
                 />
@@ -460,20 +462,20 @@ export default function Register() {
                         ? "bg-accent border-accent"
                         : fieldErrors.agreed
                         ? "border-red-500/60 bg-white"
-                        : "border-slate-300 bg-white group-hover:border-[#0EA5E9]/50"
+                        : "border-slate-300 bg-white group-hover:border-primary/50"
                     }`}
                     aria-hidden="true"
                   >
-                    {form.agreed && <Check size={10} strokeWidth={3} className="text-[#0F172A]" />}
+                    {form.agreed && <Check size={10} strokeWidth={3} className="text-text-primary" />}
                   </div>
                 </div>
                 <span className="text-sm text-slate-600 leading-relaxed">
                   I agree to the{" "}
-                  <NavLink to="/terms" className="text-[#0EA5E9] hover:text-[#F97316] transition-colors">
+                  <NavLink to="/terms" className="text-primary hover:text-accent transition-colors">
                     Terms of Service
                   </NavLink>{" "}
                   and{" "}
-                  <NavLink to="/privacy" className="text-[#0EA5E9] hover:text-[#F97316] transition-colors">
+                  <NavLink to="/privacy" className="text-primary hover:text-accent transition-colors">
                     Privacy Policy
                   </NavLink>
                 </span>
@@ -488,7 +490,7 @@ export default function Register() {
               type="submit"
               disabled={loading}
               aria-busy={loading}
-              className="mt-2 flex items-center justify-center gap-3 w-full py-4 bg-[#0EA5E9] text-[#0F172A] font-bold text-sm tracking-widest uppercase hover:bg-[#22C55E] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-2 flex items-center justify-center gap-3 w-full py-4 bg-primary text-text-primary font-bold text-sm tracking-widest uppercase hover:bg-secondary transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
@@ -509,7 +511,7 @@ export default function Register() {
               Already a patient?{" "}
               <NavLink
                 to="/login"
-                className="text-[#0EA5E9] font-semibold hover:text-[#F97316] transition-colors duration-150"
+                className="text-primary font-semibold hover:text-accent transition-colors duration-150"
               >
                 Sign in to your account →
               </NavLink>

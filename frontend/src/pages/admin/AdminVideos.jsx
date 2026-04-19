@@ -25,17 +25,17 @@ function VideoModal({ video, onClose, onSave }) {
         const res = await api.post("/admin/videos", form);
         onSave(res.data.video, true);
       } else {
-        await api.put(`/admin/videos/${form._id}`, form);
-        onSave(form, false);
+        const res = await api.put(`/admin/videos/${form._id}`, form);
+        onSave(res.data?.video || form, false);
       }
       onClose();
-    } catch { setError("Failed to save."); }
+    } catch (err) { setError(err.response?.data?.message || "Failed to save."); }
     finally { setSaving(false); }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={onClose}>
-      <div className="w-full max-w-xl bg-[#0F172A] border border-white/10 shadow-2xl flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-xl bg-surface-dark border border-white/10 shadow-2xl flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 shrink-0">
           <h2 className="text-lg font-black text-white" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
             {isNew ? "ADD VIDEO" : "EDIT VIDEO"}
@@ -91,7 +91,7 @@ function VideoModal({ video, onClose, onSave }) {
         <div className="flex justify-end gap-2 px-6 py-4 border-t border-white/5 shrink-0">
           <button onClick={onClose} className="px-4 py-2 border border-white/10 text-slate-400 text-xs font-bold tracking-widest uppercase hover:text-white transition-colors">Cancel</button>
           <button onClick={handleSave} disabled={saving}
-            className="flex items-center gap-2 px-5 py-2 bg-[accent] text-[#0F172A] text-xs font-bold tracking-widest uppercase hover:bg-white transition-colors disabled:opacity-50">
+            className="flex items-center gap-2 px-5 py-2 bg-[accent] text-text-primary text-xs font-bold tracking-widest uppercase hover:bg-white transition-colors disabled:opacity-50">
             {saving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />} {isNew ? "Add Video" : "Save"}
           </button>
         </div>
@@ -103,6 +103,7 @@ function VideoModal({ video, onClose, onSave }) {
 export default function AdminVideos() {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("all");
   const [diffFilter, setDiffFilter] = useState("all");
@@ -112,17 +113,27 @@ export default function AdminVideos() {
 
   const load = useCallback(() => {
     setLoading(true);
+    setError("");
     api.get("/admin/videos")
       .then((r) => setVideos(r.data.videos ?? []))
-      .catch(() => setVideos([]))
+      .catch((err) => {
+        setVideos([]);
+        setError(err.response?.data?.message || "Failed to load videos.");
+      })
       .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => { load(); }, [load]);
 
   const handleToggle = async (id, current) => {
-    await api.patch(`/admin/videos/${id}/publish`, { published: !current }).catch(() => {});
-    setVideos((prev) => prev.map((v) => v._id === id ? { ...v, published: !current } : v));
+    setError("");
+    try {
+      const res = await api.patch(`/admin/videos/${id}/publish`, { published: !current });
+      const updatedVideo = res.data?.video;
+      setVideos((prev) => prev.map((v) => v._id === id ? (updatedVideo || { ...v, published: !current }) : v));
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to update video visibility.");
+    }
   };
 
   const handleSave = (updated, isNew) => {
@@ -132,9 +143,16 @@ export default function AdminVideos() {
 
   const handleDelete = async () => {
     setDeleting(true);
-    await api.delete(`/admin/videos/${deleteTarget._id}`).catch(() => {});
-    setVideos((prev) => prev.filter((v) => v._id !== deleteTarget._id));
-    setDeleteTarget(null); setDeleting(false);
+    setError("");
+    try {
+      await api.delete(`/admin/videos/${deleteTarget._id}`);
+      setVideos((prev) => prev.filter((v) => v._id !== deleteTarget._id));
+      setDeleteTarget(null);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to delete video.");
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const filtered = videos.filter((v) => {
@@ -150,7 +168,7 @@ export default function AdminVideos() {
       {modalVideo !== null && <VideoModal video={modalVideo} onClose={() => setModalVideo(null)} onSave={handleSave} />}
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setDeleteTarget(null)}>
-          <div className="w-full max-w-sm bg-[#0F172A] border border-red-500/20 p-6 flex flex-col gap-5" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-sm bg-surface-dark border border-red-500/20 p-6 flex flex-col gap-5" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-sm font-black text-white">Delete Video</h3>
             <p className="text-sm text-slate-400">Permanently delete <strong className="text-white">"{deleteTarget.title}"</strong>?</p>
             <div className="flex gap-2">
@@ -166,28 +184,35 @@ export default function AdminVideos() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <span className="text-[11px] font-bold tracking-[0.3em] uppercase text-[accent]">Management</span>
-          <h1 className="mt-1 text-3xl font-black text-white" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+          <h1 className="mt-1 text-3xl font-black text-slate-900" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
             VIDEO LIBRARY <span className="text-slate-600">({filtered.length})</span>
           </h1>
         </div>
         <button onClick={() => setModalVideo(EMPTY_VIDEO)}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[accent] text-[#0F172A] text-xs font-bold tracking-widest uppercase hover:bg-white transition-colors self-start sm:self-auto">
+          className="flex items-center gap-2 px-5 py-2.5 bg-[accent] text-text-primary text-xs font-bold tracking-widest uppercase hover:bg-white transition-colors self-start sm:self-auto">
           <Plus size={13} /> Add Video
         </button>
       </div>
+
+      {error && (
+        <div className="flex items-center gap-2 p-3 border border-red-500/20 bg-red-500/5 text-red-400 text-xs">
+          <AlertCircle size={13} />
+          {error}
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-50 max-w-xs">
           <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600" />
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search title, tags…"
-            className="w-full bg-white/3 border border-white/10 pl-9 pr-4 py-2.5 text-xs text-white placeholder-slate-700 outline-none focus:border-[accent] transition-colors" />
+            className="w-full bg-white/60 border border-slate-300 pl-9 pr-4 py-2.5 text-xs text-slate-900 placeholder-slate-500 outline-none focus:border-[accent] transition-colors" />
         </div>
         <div className="flex gap-1 flex-wrap">
           {["all", ...CATEGORIES].map((c) => (
             <button key={c} onClick={() => setCatFilter(c)}
               className={`px-3 py-2 text-[10px] font-bold tracking-widest uppercase border transition-all duration-150 ${
-                catFilter === c ? "bg-[accent] border-[accent] text-[#0F172A]" : "border-white/10 text-slate-500 hover:text-white hover:border-white/25"
+                catFilter === c ? "bg-[accent] border-[accent] text-text-primary" : "border-white/10 text-slate-500 hover:text-slate-900 hover:border-slate-400"
               }`}>{c === "all" ? "All" : c}</button>
           ))}
         </div>
@@ -213,7 +238,7 @@ export default function AdminVideos() {
           {filtered.map((video) => (
             <div key={video._id} className={`group flex flex-col border transition-all duration-200 overflow-hidden ${video.published ? "bg-white/2 border-white/8 hover:border-[accent]/30" : "bg-white/1 border-white/5 opacity-60"}`}>
               {/* Thumbnail area */}
-              <div className="relative w-full pt-[56.25%] bg-[#0a1628]">
+              <div className="relative w-full pt-[56.25%] bg-surface-alt">
                 <div className="absolute inset-0 flex items-center justify-center">
                   <PlayCircle size={28} className="text-[accent]/30" strokeWidth={1} />
                 </div>
@@ -227,7 +252,7 @@ export default function AdminVideos() {
 
               <div className="p-4 flex flex-col gap-2 flex-1">
                 <span className="text-[9px] font-bold tracking-widest uppercase text-slate-600">{video.category}</span>
-                <h3 className="text-sm font-black text-white leading-tight" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>{video.title}</h3>
+                <h3 className="text-sm font-black text-slate-900 leading-tight" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>{video.title}</h3>
                 <div className="flex items-center justify-between text-[10px] text-slate-600 mt-auto">
                   <span>{video.duration}</span>
                   <span>{video.views?.toLocaleString()} views</span>

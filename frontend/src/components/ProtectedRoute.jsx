@@ -43,7 +43,7 @@ export default function ProtectedRoute({
       >
         <Loader2
           size={32}
-          className="text-[#0EA5E9] animate-spin"
+          className="text-primary animate-spin"
           strokeWidth={2}
           aria-hidden="true"
         />

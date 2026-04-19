@@ -11,12 +11,12 @@ const availabilitySchema = new mongoose.Schema(
 
 const clinicSettingsSchema = new mongoose.Schema({
   key: { type: String, required: true, unique: true, default: 'global' },
-  clinicName: { type: String, default: 'Apex Clinic' },
-  clinicEmail: { type: String, default: 'admin@apexclinic.pk' },
-  tagline: { type: String, default: 'Sports Medicine & Rehabilitation' },
-  address: { type: String, default: '123 Recovery Road, Sports District, Karachi' },
-  phone: { type: String, default: '+92 300 123 4567' },
-  website: { type: String, default: 'https://apexclinic.pk' },
+  clinicName: { type: String, default: 'Sport Injuries Rehab Center' },
+  clinicEmail: { type: String, default: 'contact@sportinjuriesrehabcenter.pk' },
+  tagline: { type: String, default: 'Rehab • Recover • Rebuild • Return Stronger' },
+  address: { type: String, default: 'Sports District, Karachi' },
+  phone: { type: String, default: '03318348748 | 03703699444' },
+  website: { type: String, default: 'https://sportinjuriesrehabcenter.pk' },
   currency: { type: String, default: 'PKR' },
   workingHours: {
     start: { type: String, default: '09:00' },

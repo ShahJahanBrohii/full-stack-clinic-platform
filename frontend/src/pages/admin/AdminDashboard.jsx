@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   CalendarCheck, Users, DollarSign, TrendingUp,
@@ -7,21 +7,17 @@ import {
 } from "lucide-react";
 import api from "../../services/api";
 
-// ── Mock fallback data ────────────────────────────────────────────────────────
-const MOCK_STATS = {
-  totalBookings: 142, bookingsToday: 8, pendingBookings: 14,
-  totalPatients: 238, newPatientsThisMonth: 19,
-  totalRevenue: 487500, revenueThisMonth: 52000,
-  completedSessions: 118, cancelledBookings: 10,
+const EMPTY_STATS = {
+  totalBookings: 0,
+  bookingsToday: 0,
+  pendingBookings: 0,
+  totalPatients: 0,
+  newPatientsThisMonth: 0,
+  totalRevenue: 0,
+  revenueThisMonth: 0,
+  completedSessions: 0,
+  cancelledBookings: 0,
 };
-
-const MOCK_RECENT_BOOKINGS = [
-  { _id: "b1", patientName: "Ali Hassan", serviceName: "Sports Injury Rehab", date: "2026-02-21", timeSlot: "10:30 AM", status: "confirmed", price: "PKR 3,500" },
-  { _id: "b2", patientName: "Sana Mirza", serviceName: "Running Gait Analysis", date: "2026-02-21", timeSlot: "12:00 PM", status: "pending", price: "PKR 5,000" },
-  { _id: "b3", patientName: "Bilal Rauf", serviceName: "Biomechanical Assessment", date: "2026-02-20", timeSlot: "03:30 PM", status: "completed", price: "PKR 4,500" },
-  { _id: "b4", patientName: "Nadia Farooq", serviceName: "Strength & Reconditioning", date: "2026-02-20", timeSlot: "09:00 AM", status: "cancelled", price: "PKR 3,000" },
-  { _id: "b5", patientName: "Kamran Akbar", serviceName: "FMS Screening", date: "2026-02-22", timeSlot: "11:15 AM", status: "confirmed", price: "PKR 2,500" },
-];
 
 const STATUS_CONFIG = {
   confirmed: { label: "Confirmed", color: "text-accent bg-accent/10", dot: "bg-accent" },
@@ -54,23 +50,103 @@ function KpiCard({ icon: Icon, label, value, sub, accent, trend }) {
 }
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState(null);
+  const [stats, setStats] = useState(EMPTY_STATS);
   const [recentBookings, setRecentBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   useEffect(() => {
-    Promise.all([
-      api.get("/admin/stats").catch(() => ({ data: { stats: MOCK_STATS } })),
-      api.get("/admin/bookings?limit=5&sort=newest").catch(() => ({ data: { bookings: MOCK_RECENT_BOOKINGS } })),
-    ]).then(([statsRes, bookingsRes]) => {
-      setStats(statsRes.data.stats ?? MOCK_STATS);
-      setRecentBookings(bookingsRes.data.bookings ?? MOCK_RECENT_BOOKINGS);
-    }).finally(() => setLoading(false));
-  }, []);
+    let cancelled = false;
 
-  const s = stats || MOCK_STATS;
+    async function loadDashboard() {
+      setLoading(true);
+      setLoadError("");
+
+      const [statsResult, bookingsResult] = await Promise.allSettled([
+        api.get("/admin/stats"),
+        api.get("/admin/bookings?limit=5&sort=newest"),
+      ]);
+
+      if (cancelled) return;
+
+      const nextStats = statsResult.status === "fulfilled"
+        ? (statsResult.value.data.stats ?? EMPTY_STATS)
+        : EMPTY_STATS;
+
+      const nextBookings = bookingsResult.status === "fulfilled"
+        ? (bookingsResult.value.data.bookings ?? [])
+        : [];
+
+      setStats(nextStats);
+      setRecentBookings(nextBookings);
+
+      const failures = [];
+      if (statsResult.status === "rejected") failures.push("summary metrics");
+      if (bookingsResult.status === "rejected") failures.push("recent bookings");
+      if (failures.length > 0) {
+        setLoadError(`Unable to load ${failures.join(" and ")} right now.`);
+      }
+
+      setLastUpdated(new Date());
+
+      setLoading(false);
+    }
+
+    loadDashboard();
+    return () => { cancelled = true; };
+  }, [refreshKey]);
+
+  const s = stats || EMPTY_STATS;
 
   const TODAY_SCHEDULE = recentBookings.filter(b => b.status === "confirmed" || b.status === "pending").slice(0, 4);
+
+  const operationalFocus = useMemo(() => {
+    const items = [];
+
+    if (s.pendingBookings > 0) {
+      items.push({
+        key: "pending",
+        title: `${s.pendingBookings} bookings need confirmation`,
+        description: "Confirm pending requests to reduce no-shows and confusion.",
+        to: "/admin/bookings",
+        cta: "Review Bookings",
+      });
+    }
+
+    if (s.cancelledBookings > 0) {
+      items.push({
+        key: "cancelled",
+        title: `${s.cancelledBookings} cancellations this period`,
+        description: "Check cancellation trends and follow up with affected patients.",
+        to: "/admin/analytics",
+        cta: "Open Analytics",
+      });
+    }
+
+    if (s.newPatientsThisMonth > 0) {
+      items.push({
+        key: "patients",
+        title: `${s.newPatientsThisMonth} new patients this month`,
+        description: "Ensure onboarding messages and first-session availability stay smooth.",
+        to: "/admin/patients",
+        cta: "View Patients",
+      });
+    }
+
+    if (items.length === 0) {
+      items.push({
+        key: "clear",
+        title: "Operations are stable",
+        description: "No urgent admin actions detected right now.",
+        to: "/admin/analytics",
+        cta: "Check Reports",
+      });
+    }
+
+    return items.slice(0, 3);
+  }, [s.pendingBookings, s.cancelledBookings, s.newPatientsThisMonth]);
 
   return (
     <div className="p-6 lg:p-8 flex flex-col gap-8">
@@ -83,11 +159,48 @@ export default function AdminDashboard() {
           </h1>
         </div>
         <div className="flex gap-2">
-          <NavLink to="/admin/bookings/new" className="flex items-center gap-2 px-5 py-2.5 bg-accent text-[#0F172A] text-xs font-bold tracking-widest uppercase hover:bg-white transition-colors duration-200">
+          <NavLink to="/admin/bookings/new" className="flex items-center gap-2 px-5 py-2.5 bg-accent text-text-primary text-xs font-bold tracking-widest uppercase hover:bg-white transition-colors duration-200">
             <CalendarCheck size={13} strokeWidth={2.5} /> New Booking
           </NavLink>
         </div>
       </div>
+
+      {loadError && (
+        <div className="flex items-center justify-between gap-3 p-4 border border-amber-500/20 bg-amber-500/5 text-amber-300 text-sm">
+          <div className="flex flex-col gap-1">
+            <span>{loadError}</span>
+            {lastUpdated && (
+              <span className="text-[11px] text-amber-200/80">
+                Last refresh: {lastUpdated.toLocaleTimeString("en-PK", { hour: "2-digit", minute: "2-digit" })}
+              </span>
+            )}
+          </div>
+          <button
+            onClick={() => setRefreshKey((v) => v + 1)}
+            className="text-xs font-bold tracking-widest uppercase text-primary hover:text-text-primary transition-colors duration-150"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+      {!loading && (
+        <div className="grid md:grid-cols-3 gap-3" role="region" aria-label="Operational focus">
+          {operationalFocus.map((item) => (
+            <div key={item.key} className="p-4 border border-slate-200 bg-white flex flex-col gap-3">
+              <p className="text-sm font-bold text-slate-900">{item.title}</p>
+              <p className="text-xs text-slate-600">{item.description}</p>
+              <NavLink
+                to={item.to}
+                className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-widest uppercase text-accent hover:text-white transition-colors duration-150"
+              >
+                {item.cta}
+                <ChevronRight size={11} />
+              </NavLink>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* KPIs */}
       {loading ? (
@@ -131,7 +244,13 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {(loading ? MOCK_RECENT_BOOKINGS : recentBookings).map((b) => {
+                {recentBookings.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-8 text-center text-xs text-slate-600">
+                      No recent bookings found. New bookings will appear here.
+                    </td>
+                  </tr>
+                ) : recentBookings.map((b) => {
                   const sc = STATUS_CONFIG[b.status] || STATUS_CONFIG.pending;
                   return (
                     <tr key={b._id} className="hover:bg-slate-50 transition-colors duration-100 group">

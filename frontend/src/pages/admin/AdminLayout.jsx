@@ -3,7 +3,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, CalendarCheck, Users, Dumbbell,
   PlayCircle, BarChart2, Settings, LogOut, Activity,
-  Menu, ChevronRight, Bell, Shield,
+  Menu, ChevronRight, Bell, Shield, ArrowUpRight,
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { AdminNotificationProvider } from "../../context/AdminNotificationContext";
@@ -59,6 +59,17 @@ export default function AdminLayout() {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  const currentSectionLabel = (() => {
+    if (location.pathname === "/admin" || location.pathname === "/admin/") return "Dashboard";
+    if (location.pathname.startsWith("/admin/analytics")) return "Analytics";
+    if (location.pathname.startsWith("/admin/bookings")) return "Bookings";
+    if (location.pathname.startsWith("/admin/patients")) return "Patients";
+    if (location.pathname.startsWith("/admin/services")) return "Services";
+    if (location.pathname.startsWith("/admin/videos")) return "Video Library";
+    if (location.pathname.startsWith("/admin/settings")) return "Settings";
+    return "Admin";
+  })();
+
   const handleLogout = () => { logout(); navigate("/login"); };
 
   useEffect(() => {
@@ -66,11 +77,11 @@ export default function AdminLayout() {
   }, [location.pathname]);
 
   const Sidebar = () => (
-    <aside className="flex flex-col h-full bg-[#F1F5F9] border-r border-slate-200 w-60 shrink-0">
+    <aside className="flex flex-col h-full bg-bg-secondary border-r border-slate-200 w-60 shrink-0">
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-5 border-b border-slate-200">
         <div className="w-8 h-8 flex items-center justify-center bg-[accent] shrink-0">
-          <Activity size={16} strokeWidth={2.5} className="text-[#0F172A]" />
+          <Activity size={16} strokeWidth={2.5} className="text-text-primary" />
         </div>
         <div className="flex flex-col leading-none">
             <span className="text-slate-900 font-black text-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>
@@ -115,7 +126,7 @@ export default function AdminLayout() {
 
   return (
     <AdminNotificationProvider>
-      <div className="flex h-screen bg-linear-to-br from-[#F8FAFC] via-[#F1F5F9] to-[#F8FAFC] text-slate-900 overflow-hidden">
+      <div className="flex h-screen bg-linear-to-br from-bg-dark via-bg-secondary to-bg-dark text-slate-900 overflow-hidden">
       {/* Desktop sidebar */}
       <div className="hidden lg:flex">
         <Sidebar />
@@ -134,7 +145,7 @@ export default function AdminLayout() {
       {/* Main content area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top bar */}
-        <header className="h-14 bg-[#F1F5F9] border-b border-slate-200 flex items-center justify-between px-4 lg:px-6 shrink-0">
+        <header className="h-14 bg-bg-secondary border-b border-slate-200 flex items-center justify-between px-4 lg:px-6 shrink-0">
           <button
             className="lg:hidden p-1.5 text-slate-400 hover:text-slate-200"
             onClick={() => setSidebarOpen(true)}
@@ -145,9 +156,16 @@ export default function AdminLayout() {
             <Shield size={11} className="text-[accent]" />
             Admin Portal
             <ChevronRight size={11} />
-            <span className="text-slate-500">Ali's Clinic</span>
+            <span className="text-slate-500">{currentSectionLabel}</span>
           </div>
           <div className="flex items-center gap-3 ml-auto">
+            <NavLink
+              to="/"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold tracking-widest uppercase border border-slate-300 text-slate-600 hover:text-slate-900 hover:border-slate-400 transition-colors duration-150"
+            >
+              Public Site
+              <ArrowUpRight size={11} />
+            </NavLink>
             <button className="relative p-2 text-slate-500 hover:text-slate-900 transition-colors duration-150">
               <Bell size={16} />
               <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[accent] rounded-full" />

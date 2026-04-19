@@ -21,6 +21,38 @@ router.get('/', authMiddleware, async (req, res) => {
   }
 });
 
+// ── GET PROGRESS STATS FOR DASHBOARD ───────────────────────────────────────
+router.get('/stats/summary', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const results = await VideoProgress.aggregate([
+      { $match: { userId: mongoose.Types.ObjectId(userId) } },
+      {
+        $group: {
+          _id: null,
+          totalVideos: { $sum: 1 },
+          completedVideos: { $sum: { $cond: ['$isCompleted', 1, 0] } },
+          totalWatchTime: { $sum: '$totalWatchTime' },
+          avgProgress: { $avg: '$progress' },
+        },
+      },
+    ]);
+
+    const stats = results[0] || {
+      totalVideos: 0,
+      completedVideos: 0,
+      totalWatchTime: 0,
+      avgProgress: 0,
+    };
+
+    res.json({ stats });
+  } catch (err) {
+    console.error('Get stats error:', err);
+    res.status(500).json({ message: 'Error retrieving statistics.' });
+  }
+});
+
 // ── GET SPECIFIC VIDEO PROGRESS ────────────────────────────────────────────
 router.get('/:videoId', authMiddleware, async (req, res) => {
   try {
@@ -153,38 +185,6 @@ router.delete('/:videoId', authMiddleware, async (req, res) => {
   } catch (err) {
     console.error('Delete progress error:', err);
     res.status(500).json({ message: 'Error deleting progress.' });
-  }
-});
-
-// ── GET PROGRESS STATS FOR DASHBOARD ───────────────────────────────────────
-router.get('/stats/summary', authMiddleware, async (req, res) => {
-  try {
-    const userId = req.user._id;
-
-    const results = await VideoProgress.aggregate([
-      { $match: { userId: mongoose.Types.ObjectId(userId) } },
-      {
-        $group: {
-          _id: null,
-          totalVideos: { $sum: 1 },
-          completedVideos: { $sum: { $cond: ['$isCompleted', 1, 0] } },
-          totalWatchTime: { $sum: '$totalWatchTime' },
-          avgProgress: { $avg: '$progress' },
-        },
-      },
-    ]);
-
-    const stats = results[0] || {
-      totalVideos: 0,
-      completedVideos: 0,
-      totalWatchTime: 0,
-      avgProgress: 0,
-    };
-
-    res.json({ stats });
-  } catch (err) {
-    console.error('Get stats error:', err);
-    res.status(500).json({ message: 'Error retrieving statistics.' });
   }
 });
 

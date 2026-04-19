@@ -12,6 +12,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
+import { useClinicSettings } from "../context/ClinicSettingsContext";
 
 const NAV_LINKS = [
   { label: "Home", to: "/" },
@@ -24,6 +25,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { user, logout } = useAuth();
+  const { settings } = useClinicSettings();
   const navigate = useNavigate();
   const location = useLocation();
   const menuRef = useRef(null);
@@ -81,6 +83,7 @@ export default function Navbar() {
   }, [logout, navigate]);
 
   const isAdmin = user?.role === "admin";
+  const dashboardPath = isAdmin ? "/admin" : "/dashboard";
 
   return (
     <>
@@ -91,8 +94,8 @@ export default function Navbar() {
       <header
         className={`sticky top-0 z-50 transition-all duration-300 ${
           scrolled
-            ? "bg-[#F8FAFC]/95 backdrop-blur-md border-b border-slate-200 shadow-sm"
-            : "bg-[#F8FAFC]"
+            ? "bg-bg-dark/95 backdrop-blur-md border-b border-slate-200 shadow-sm"
+            : "bg-bg-dark"
         }`}
       >
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" role="navigation" aria-label="Main navigation">
@@ -102,7 +105,7 @@ export default function Navbar() {
             <NavLink
               to="/"
               className="flex items-center gap-3 group select-none"
-              aria-label="Ali's Clinic — Home"
+              aria-label={`${settings.clinicName} — Home`}
             >
               <div className="w-9 h-9 flex items-center justify-center bg-gradient-primary group-hover:bg-accent transition-colors duration-200">
                 <Activity size={18} strokeWidth={2.5} className="text-white" />
@@ -112,10 +115,10 @@ export default function Navbar() {
                   className="text-slate-900 font-black text-lg tracking-tight"
                   style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, letterSpacing: "-0.02em" }}
                 >
-                  Ali's<span className="text-accent">Clinic</span>
+                  {settings.clinicName}
                 </span>
                 <span className="text-[10px] text-slate-500 tracking-[0.2em] uppercase font-medium">
-                  Sports Medicine
+                  {settings.tagline}
                 </span>
               </div>
             </NavLink>
@@ -205,12 +208,12 @@ export default function Navbar() {
                         aria-label="User options"
                       >
                         <NavLink
-                          to="/dashboard"
+                          to={dashboardPath}
                           role="menuitem"
                           className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150"
                         >
-                          <LayoutDashboard size={14} className="text-[#0EA5E9]" aria-hidden="true" />
-                          My Dashboard
+                          <LayoutDashboard size={14} className="text-primary" aria-hidden="true" />
+                          {isAdmin ? "Admin Dashboard" : "My Dashboard"}
                         </NavLink>
                         <div className="my-1 border-t border-slate-100" role="separator" />
                         <button
@@ -235,7 +238,7 @@ export default function Navbar() {
                   </NavLink>
                   <NavLink
                     to="/register"
-                    className="flex items-center gap-2 px-5 py-2 bg-[#0EA5E9] text-[#0F172A] text-sm font-bold tracking-widest uppercase hover:bg-[#0284C7] transition-all duration-200 rounded-lg"
+                    className="flex items-center gap-2 px-5 py-2 bg-primary text-text-primary text-sm font-bold tracking-widest uppercase hover:bg-primary-dark transition-all duration-200 rounded-lg"
                   >
                     Create Account
                     <ChevronRight size={14} strokeWidth={2.5} aria-hidden="true" />
@@ -266,7 +269,7 @@ export default function Navbar() {
           }`}
           aria-hidden={!mobileOpen}
         >
-          <div className="border-t border-slate-200 bg-[#F8FAFC] px-4 pt-4 pb-6 flex flex-col gap-1">
+          <div className="border-t border-slate-200 bg-bg-dark px-4 pt-4 pb-6 flex flex-col gap-1">
             {NAV_LINKS.map(({ label, to }) => (
               <NavLink
                 key={to}
@@ -321,12 +324,12 @@ export default function Navbar() {
                 )}
 
                 <NavLink
-                  to="/dashboard"
+                  to={dashboardPath}
                   className="flex items-center justify-between px-4 py-3 text-sm text-slate-700 hover:text-slate-900 transition-colors duration-150"
                 >
                   <span className="flex items-center gap-3">
                     <LayoutDashboard size={15} className="text-accent" aria-hidden="true" />
-                    My Dashboard
+                    {isAdmin ? "Admin Dashboard" : "My Dashboard"}
                   </span>
                   <ChevronRight size={14} className="text-slate-600" aria-hidden="true" />
                 </NavLink>
@@ -349,7 +352,7 @@ export default function Navbar() {
                 </NavLink>
                 <NavLink
                   to="/register"
-                  className="flex-1 text-center py-3 bg-[#0EA5E9] text-[#0F172A] text-sm font-bold tracking-widest uppercase hover:bg-[#0284C7] transition-all duration-200"
+                  className="flex-1 text-center py-3 bg-primary text-text-primary text-sm font-bold tracking-widest uppercase hover:bg-primary-dark transition-all duration-200"
                 >
                   Create Account
                 </NavLink>

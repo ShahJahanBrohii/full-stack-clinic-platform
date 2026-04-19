@@ -16,6 +16,10 @@
   --color-bg-dark: #f8fafc;       /* Requested light background */
   --color-bg-secondary: #f1f5f9;
   --color-bg-tertiary: #e2e8f0;
+  --color-surface-dark: #0f172a;
+  --color-surface-alt: #0a1628;
+  --color-overlay-dark: #010810;
+  --color-on-dark: #f8fafc;
   
   /* Text Colors */
   --color-text-primary: #0f172a;  /* Requested dark text */

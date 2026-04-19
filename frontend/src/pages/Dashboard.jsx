@@ -42,19 +42,19 @@ function StatTile({ icon: Icon, label, value, accent = false }) {
   return (
     <div
       className={`p-5 border flex flex-col gap-3 ${
-        accent ? "bg-[#0EA5E9] border-[#0EA5E9]" : "bg-white border-slate-200"
+        accent ? "bg-primary border-primary" : "bg-white border-slate-200"
       }`}
       aria-label={`${label}: ${value}`}
     >
-      <Icon size={18} className={accent ? "text-[#0F172A]" : "text-[#0EA5E9]"} strokeWidth={2} aria-hidden="true" />
+      <Icon size={18} className={accent ? "text-text-primary" : "text-primary"} strokeWidth={2} aria-hidden="true" />
       <div>
         <p
-          className={`text-2xl font-black leading-none ${accent ? "text-[#0F172A]" : "text-slate-900"}`}
+          className={`text-2xl font-black leading-none ${accent ? "text-text-primary" : "text-slate-900"}`}
           style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
         >
           {value}
         </p>
-        <p className={`text-xs mt-1 font-medium tracking-wide ${accent ? "text-[#0F172A]/60" : "text-slate-600"}`}>
+        <p className={`text-xs mt-1 font-medium tracking-wide ${accent ? "text-text-primary/60" : "text-slate-600"}`}>
           {label}
         </p>
       </div>
@@ -67,17 +67,30 @@ function QuickAction({ icon: Icon, label, to, desc }) {
   return (
     <NavLink
       to={to}
-      className="group flex items-center gap-4 p-4 border border-slate-200 hover:border-[#0EA5E9]/40 bg-white hover:bg-[#0EA5E9]/3 transition-all duration-200"
+      className="group flex items-center gap-4 p-4 border border-slate-200 hover:border-primary/40 bg-white hover:bg-primary/3 transition-all duration-200"
     >
-      <div className="w-10 h-10 flex items-center justify-center bg-[#0EA5E9]/10 border border-[#0EA5E9]/20 group-hover:bg-[#0EA5E9] group-hover:border-[#0EA5E9] transition-all duration-200 shrink-0">
-        <Icon size={16} className="text-[#0EA5E9] group-hover:text-[#0F172A] transition-colors duration-200" aria-hidden="true" />
+      <div className="w-10 h-10 flex items-center justify-center bg-primary/10 border border-primary/20 group-hover:bg-primary group-hover:border-primary transition-all duration-200 shrink-0">
+        <Icon size={16} className="text-primary group-hover:text-text-primary transition-colors duration-200" aria-hidden="true" />
       </div>
       <div className="min-w-0">
         <p className="text-sm font-bold text-slate-900">{label}</p>
         <p className="text-xs text-slate-600 truncate">{desc}</p>
       </div>
-      <ChevronRight size={14} className="text-slate-700 group-hover:text-[#0EA5E9] ml-auto shrink-0 transition-colors duration-200" aria-hidden="true" />
+      <ChevronRight size={14} className="text-slate-700 group-hover:text-primary ml-auto shrink-0 transition-colors duration-200" aria-hidden="true" />
     </NavLink>
+  );
+}
+
+function CareChecklistItem({ label, done }) {
+  return (
+    <div className="flex items-center gap-2 text-xs">
+      {done ? (
+        <CheckCircle2 size={13} className="text-accent shrink-0" aria-hidden="true" />
+      ) : (
+        <Clock size={13} className="text-slate-500 shrink-0" aria-hidden="true" />
+      )}
+      <span className={done ? "text-slate-900" : "text-slate-600"}>{label}</span>
+    </div>
   );
 }
 
@@ -85,8 +98,8 @@ function QuickAction({ icon: Icon, label, to, desc }) {
 function EmptyBookings() {
   return (
     <div className="flex flex-col items-center justify-center py-14 gap-4 border border-dashed border-slate-300 bg-white">
-      <div className="w-12 h-12 flex items-center justify-center bg-[#0EA5E9]/10 border border-[#0EA5E9]/20">
-        <CalendarCheck size={20} className="text-[#0EA5E9]" aria-hidden="true" />
+      <div className="w-12 h-12 flex items-center justify-center bg-primary/10 border border-primary/20">
+        <CalendarCheck size={20} className="text-primary" aria-hidden="true" />
       </div>
       <div className="text-center">
         <p className="text-sm font-bold text-slate-900">No bookings yet</p>
@@ -94,7 +107,7 @@ function EmptyBookings() {
       </div>
       <NavLink
         to="/book"
-        className="flex items-center gap-2 px-5 py-2.5 bg-[#0EA5E9] text-[#0F172A] text-xs font-bold tracking-widest uppercase hover:bg-white transition-colors duration-200"
+        className="flex items-center gap-2 px-5 py-2.5 bg-primary text-text-primary text-xs font-bold tracking-widest uppercase hover:bg-white transition-colors duration-200"
       >
         Book Now <ChevronRight size={13} aria-hidden="true" />
       </NavLink>
@@ -183,17 +196,53 @@ export default function Dashboard() {
   const visibleBookings = tabFilters[activeTab] ?? [];
   const nextAppointment = tabFilters.upcoming[0];
 
+  const careChecklist = useMemo(() => ([
+    { label: "Book your first appointment", done: bookings.length > 0 },
+    { label: "Complete at least one session", done: stats.completed > 0 },
+    { label: "Review rehab videos for home care", done: stats.completed > 0 || bookings.length > 0 },
+  ]), [bookings.length, stats.completed]);
+
+  const completedChecklistCount = careChecklist.filter((item) => item.done).length;
+  const careCompletionPct = Math.round((completedChecklistCount / careChecklist.length) * 100);
+
+  const nextRecommendedAction = useMemo(() => {
+    if (bookings.length === 0) {
+      return {
+        title: "Start your treatment journey",
+        description: "Book your first appointment so your care plan can begin.",
+        to: "/book",
+        cta: "Book First Session",
+      };
+    }
+
+    if (tabFilters.upcoming.length > 0) {
+      return {
+        title: "Prepare for your upcoming appointment",
+        description: "Double-check your booking time and keep your session details ready.",
+        to: "/dashboard",
+        cta: "View Appointment",
+      };
+    }
+
+    return {
+      title: "Keep momentum between sessions",
+      description: "Use guided videos to stay consistent with your home exercises.",
+      to: "/videos",
+      cta: "Open Video Library",
+    };
+  }, [bookings.length, tabFilters.upcoming.length]);
+
   return (
-    <div className="bg-[#F8FAFC] min-h-screen">
+    <div className="bg-bg-dark min-h-screen">
 
       {/* ── Dashboard header ─────────────────────────────────── */}
-      <div className="bg-[#F1F5F9] border-b border-slate-200 relative overflow-hidden">
+      <div className="bg-bg-secondary border-b border-slate-200 relative overflow-hidden">
         <div
           className="absolute inset-0 opacity-[0.03]"
           aria-hidden="true"
           style={{
             backgroundImage:
-              "linear-gradient(#0EA5E9 1px, transparent 1px), linear-gradient(90deg, #0EA5E9 1px, transparent 1px)",
+              "linear-gradient(var(--color-primary) 1px, transparent 1px), linear-gradient(90deg, var(--color-primary) 1px, transparent 1px)",
             backgroundSize: "60px 60px",
           }}
         />
@@ -201,8 +250,8 @@ export default function Dashboard() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
-                <LayoutDashboard size={14} className="text-[#0EA5E9]" aria-hidden="true" />
-                <span className="text-[11px] font-bold tracking-[0.3em] uppercase text-[#0EA5E9]">
+                <LayoutDashboard size={14} className="text-primary" aria-hidden="true" />
+                <span className="text-[11px] font-bold tracking-[0.3em] uppercase text-primary">
                   Patient Portal
                 </span>
               </div>
@@ -212,7 +261,7 @@ export default function Dashboard() {
               >
                 {getGreeting()},
                 <br />
-                <span className="text-[#0EA5E9]">
+                <span className="text-primary">
                   {user?.name?.split(" ")[0]?.toUpperCase() || "PATIENT"}.
                 </span>
               </h1>
@@ -224,7 +273,7 @@ export default function Dashboard() {
             {/* Book CTA */}
             <NavLink
               to="/book"
-              className="flex items-center gap-2 px-6 py-3 bg-[#0EA5E9] text-[#0F172A] font-bold text-sm tracking-widest uppercase hover:bg-white transition-colors duration-200 self-start sm:self-center shrink-0"
+              className="flex items-center gap-2 px-6 py-3 bg-primary text-text-primary font-bold text-sm tracking-widest uppercase hover:bg-white transition-colors duration-200 self-start sm:self-center shrink-0"
             >
               <CalendarCheck size={15} strokeWidth={2.5} aria-hidden="true" />
               New Booking
@@ -241,6 +290,54 @@ export default function Dashboard() {
           <StatTile icon={TrendingUp}    label="Completed"       value={stats.completed} />
           <StatTile icon={Clock}         label="Pending Payment" value={stats.pending} />
           <StatTile icon={XCircle}       label="Cancelled"       value={stats.cancelled} />
+        </div>
+
+        {/* ── Guided progress panel ─────────────────────────── */}
+        <div className="grid lg:grid-cols-3 gap-4" role="region" aria-label="Care plan guidance">
+          <div className="lg:col-span-2 p-5 border border-primary/20 bg-primary/5 flex flex-col gap-3">
+            <div className="flex items-center gap-2">
+              <Activity size={14} className="text-primary" aria-hidden="true" />
+              <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-primary">Recommended Next Step</span>
+            </div>
+            <div>
+              <p className="text-base font-bold text-slate-900">{nextRecommendedAction.title}</p>
+              <p className="text-sm text-slate-600 mt-1">{nextRecommendedAction.description}</p>
+            </div>
+            <div>
+              <NavLink
+                to={nextRecommendedAction.to}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-text-primary text-xs font-bold tracking-widest uppercase hover:bg-white transition-colors duration-200"
+              >
+                {nextRecommendedAction.cta}
+                <ChevronRight size={13} aria-hidden="true" />
+              </NavLink>
+            </div>
+          </div>
+
+          <div className="p-5 border border-slate-200 bg-white flex flex-col gap-3">
+            <h3
+              className="text-sm font-black text-slate-900 tracking-wider uppercase"
+              style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
+            >
+              Care Plan Progress
+            </h3>
+            <div className="flex items-end justify-between">
+              <p className="text-xs text-slate-600">Checklist Completion</p>
+              <p className="text-sm font-bold text-slate-900">{careCompletionPct}%</p>
+            </div>
+            <div className="h-2 bg-slate-100 border border-slate-200 overflow-hidden">
+              <div
+                className="h-full bg-accent transition-all duration-300"
+                style={{ width: `${careCompletionPct}%` }}
+                aria-hidden="true"
+              />
+            </div>
+            <div className="flex flex-col gap-1 pt-1">
+              {careChecklist.map((item) => (
+                <CareChecklistItem key={item.label} label={item.label} done={item.done} />
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* ── Main content grid ────────────────────────────────── */}
@@ -260,7 +357,7 @@ export default function Dashboard() {
               <button
                 onClick={handleRefresh}
                 disabled={bookingsLoading}
-                className="flex items-center gap-1.5 text-xs text-slate-600 hover:text-[#0EA5E9] transition-colors duration-150 font-semibold disabled:opacity-50"
+                className="flex items-center gap-1.5 text-xs text-slate-600 hover:text-primary transition-colors duration-150 font-semibold disabled:opacity-50"
                 aria-label="Refresh bookings"
               >
                 {bookingsLoading
@@ -286,13 +383,13 @@ export default function Dashboard() {
                   onClick={() => setActiveTab(key)}
                   className={`px-4 py-2.5 text-xs font-bold tracking-widest uppercase whitespace-nowrap border-b-2 transition-all duration-150 ${
                     activeTab === key
-                      ? "border-[#0EA5E9] text-[#0EA5E9]"
+                      ? "border-primary text-primary"
                       : "border-transparent text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   {label}
                   {count > 0 && (
-                    <span className={`ml-2 text-[10px] ${activeTab === key ? "text-[#0EA5E9]" : "text-slate-700"}`} aria-label={`${count} bookings`}>
+                    <span className={`ml-2 text-[10px] ${activeTab === key ? "text-primary" : "text-slate-700"}`} aria-label={`${count} bookings`}>
                       {count}
                     </span>
                   )}
@@ -348,8 +445,8 @@ export default function Dashboard() {
                 My Profile
               </h3>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 flex items-center justify-center bg-[#0EA5E9]/10 border border-[#0EA5E9]/20 shrink-0">
-                  <User size={20} className="text-[#0EA5E9]" aria-hidden="true" />
+                <div className="w-12 h-12 flex items-center justify-center bg-primary/10 border border-primary/20 shrink-0">
+                  <User size={20} className="text-primary" aria-hidden="true" />
                 </div>
                 <div>
                   <p className="text-sm font-bold text-slate-900">{user?.name || "—"}</p>
@@ -395,12 +492,12 @@ export default function Dashboard() {
             {/* Next appointment callout */}
             {nextAppointment && (
               <div
-                className="p-5 bg-[#0EA5E9]/5 border border-[#0EA5E9]/20 flex flex-col gap-3"
+                className="p-5 bg-primary/5 border border-primary/20 flex flex-col gap-3"
                 aria-label="Your next appointment"
               >
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 size={14} className="text-[#0EA5E9]" aria-hidden="true" />
-                  <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[#0EA5E9]">
+                  <CheckCircle2 size={14} className="text-primary" aria-hidden="true" />
+                  <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-primary">
                     Next Appointment
                   </span>
                 </div>
@@ -422,7 +519,7 @@ export default function Dashboard() {
                     href={nextAppointment.sessionLink}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center justify-center px-3 py-2 bg-[#0EA5E9] text-[#0F172A] text-[10px] font-bold tracking-widest uppercase hover:bg-white transition-colors duration-150"
+                    className="inline-flex items-center justify-center px-3 py-2 bg-primary text-text-primary text-[10px] font-bold tracking-widest uppercase hover:bg-white transition-colors duration-150"
                   >
                     Join Online Session
                   </a>

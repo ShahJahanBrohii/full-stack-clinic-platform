@@ -219,7 +219,7 @@ router.post('/', authMiddleware, async (req, res) => {
       paymentProofImage: manualPayment ? paymentProofImage : undefined,
       paymentProofSubmittedAt: manualPayment ? new Date() : undefined,
       transactionId: transactionId || undefined,
-      status: manualPayment ? 'pending' : 'confirmed',
+      status: 'confirmed',
     });
 
     await booking.save();

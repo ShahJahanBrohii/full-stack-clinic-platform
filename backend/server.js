@@ -11,7 +11,9 @@ dotenv.config();
 const app = express();
 
 // ── MIDDLEWARE ─────────────────────────────────────────────────────────────
-app.use(cors());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || '*', // Allow all origins by default, can be restricted in production
+}));
 app.use(express.json({ limit: '2mb' })); // Allow payment proof image uploads
 app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 

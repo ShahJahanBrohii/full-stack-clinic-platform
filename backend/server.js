@@ -10,9 +10,36 @@ dotenv.config();
 
 const app = express();
 
+const normalizeOrigin = (origin) => (origin || '').trim().replace(/\/+$/, '');
+
+const configuredOrigins = (process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map(normalizeOrigin)
+  .filter(Boolean);
+
+if (process.env.NODE_ENV !== 'production') {
+  configuredOrigins.push('http://localhost:5173', 'http://127.0.0.1:5173');
+}
+
+const allowedOrigins = [...new Set(configuredOrigins)];
+
 // ── MIDDLEWARE ─────────────────────────────────────────────────────────────
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*', // Allow all origins by default, can be restricted in production
+  origin: (origin, callback) => {
+    // Allow requests with no Origin header (like server-to-server or curl)
+    if (!origin) return callback(null, true);
+
+    // If no CORS origins are configured, allow all origins.
+    if (allowedOrigins.length === 0) return callback(null, true);
+
+    const normalizedOrigin = normalizeOrigin(origin);
+
+    if (allowedOrigins.includes(normalizedOrigin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
 }));
 app.use(express.json({ limit: '2mb' })); // Allow payment proof image uploads
 app.use(express.urlencoded({ extended: true, limit: '2mb' }));
@@ -81,6 +108,9 @@ app.use(errorHandler);
 
 // ── START SERVER ────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
 const startServer = async () => {
   await connectDB();

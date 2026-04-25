@@ -10,6 +10,8 @@ dotenv.config();
 
 const app = express();
 
+const requiredEnvVars = ['MONGO_URI', 'JWT_SECRET'];
+
 const normalizeOrigin = (origin) => (origin || '').trim().replace(/\/+$/, '');
 
 const configuredOrigins = (process.env.CORS_ORIGIN || '')
@@ -53,7 +55,21 @@ const connectDB = async () => {
     await mongoose.connect(process.env.MONGO_URI);
     console.log('✓ MongoDB connected successfully');
   } catch (error) {
-    console.error('✗ MongoDB connection failed:', error.message);
+    let mongoHost = 'unknown';
+    try {
+      mongoHost = new URL(process.env.MONGO_URI).host;
+    } catch (_parseError) {
+      mongoHost = 'invalid or missing MONGO_URI';
+    }
+
+    console.error(`✗ MongoDB connection failed for ${mongoHost}:`, error.message);
+    console.error('  name:', error.name);
+    if (error.code) {
+      console.error('  code:', error.code);
+    }
+    if (error.reason?.message) {
+      console.error('  reason:', error.reason.message);
+    }
     process.exit(1);
   }
 };
@@ -108,6 +124,11 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
+  const missingEnvVars = requiredEnvVars.filter((key) => !process.env[key]);
+  if (missingEnvVars.length > 0) {
+    throw new Error(`Missing required environment variables: ${missingEnvVars.join(', ')}`);
+  }
+
   await connectDB();
   
   // Initialize appointment reminder scheduler

@@ -49,6 +49,15 @@ function KpiCard({ icon: Icon, label, value, sub, accent, trend }) {
   );
 }
 
+function formatBookingDateTime(booking) {
+  const dateValue = booking?.date ? new Date(booking.date) : null;
+  const dateLabel = dateValue && !Number.isNaN(dateValue.getTime())
+    ? dateValue.toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "numeric" })
+    : "Date TBC";
+  const timeLabel = booking?.timeSlot || "Time TBC";
+  return `${dateLabel} · ${timeLabel}`;
+}
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState(EMPTY_STATS);
   const [recentBookings, setRecentBookings] = useState([]);
@@ -210,16 +219,16 @@ export default function AdminDashboard() {
       ) : (
         <>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <KpiCard icon={CalendarCheck} label="Total Bookings" value={s.totalBookings} sub={`${s.bookingsToday} today`} trend="+12%" accent />
+            <KpiCard icon={CalendarCheck} label="Total Bookings" value={s.totalBookings} sub={`${s.bookingsToday} today`} accent />
             <KpiCard icon={Clock} label="Pending" value={s.pendingBookings} sub="Awaiting confirmation" />
-            <KpiCard icon={Users} label="Total Patients" value={s.totalPatients} sub={`+${s.newPatientsThisMonth} this month`} trend="+8%" />
+            <KpiCard icon={Users} label="Total Patients" value={s.totalPatients} sub={`+${s.newPatientsThisMonth} this month`} />
             <KpiCard icon={CheckCircle2} label="Completed" value={s.completedSessions} sub="Sessions done" />
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <KpiCard icon={DollarSign} label="Total Revenue" value={`PKR ${(s.totalRevenue / 1000).toFixed(0)}k`} sub="All time" />
-            <KpiCard icon={TrendingUp} label="This Month" value={`PKR ${(s.revenueThisMonth / 1000).toFixed(0)}k`} trend="+15%" />
+            <KpiCard icon={TrendingUp} label="This Month" value={`PKR ${(s.revenueThisMonth / 1000).toFixed(0)}k`} sub="Current month" />
             <KpiCard icon={XCircle} label="Cancelled" value={s.cancelledBookings} sub="This period" />
-            <KpiCard icon={Activity} label="Active Services" value="8" sub="Listed publicly" />
+            <KpiCard icon={Activity} label="Active Services" value={s.totalServices} sub="Listed publicly" />
           </div>
         </>
       )}
@@ -257,7 +266,7 @@ export default function AdminDashboard() {
                       <td className="px-4 py-3 font-semibold text-slate-900 text-xs">{b.patientName}</td>
                       <td className="px-4 py-3 text-slate-400 text-xs truncate max-w-35">{b.serviceName}</td>
                       <td className="px-4 py-3 text-slate-500 text-xs whitespace-nowrap">
-                        {b.date} · {b.timeSlot}
+                        {formatBookingDateTime(b)}
                       </td>
                       <td className="px-4 py-3">
                         <span className={`flex items-center gap-1.5 w-fit text-[10px] font-bold px-2 py-0.5 ${sc.color}`}>

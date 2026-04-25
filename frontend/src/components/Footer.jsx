@@ -1,6 +1,5 @@
 import { NavLink } from "react-router-dom";
 import {
-  Activity,
   MapPin,
   Phone,
   Mail,
@@ -112,9 +111,6 @@ export default function Footer() {
         {/* Brand column */}
         <div className="lg:col-span-1 flex flex-col gap-5">
           <NavLink to="/" className="flex items-center gap-3 group select-none w-fit" aria-label={`${settings.clinicName} — Home`}>
-            <div className="w-9 h-9 flex items-center justify-center bg-primary group-hover:bg-white transition-colors duration-200">
-              <Activity size={18} strokeWidth={2.5} className="text-white group-hover:text-bg-dark" aria-hidden="true" />
-            </div>
             <div className="flex flex-col leading-none">
               <span
                 className="text-slate-900 font-black text-lg"

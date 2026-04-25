@@ -24,107 +24,6 @@ import { useClinicSettings } from "../context/ClinicSettingsContext";
 // ── Services data ─────────────────────────────────────────────────────────────
 const CATEGORIES = ["All", "Therapy", "Conditions", "Rehabilitation", "Assessment", "Group"];
 
-const SERVICES = [
-  {
-    id: 1,
-    icon: Zap,
-    category: "Therapy",
-    title: "Dry Needling Therapy",
-    tagline: "Relieve muscle pain and restore movement",
-    desc: "Focused dry needling treatment to release trigger points, reduce stiffness, and improve mobility with safe clinical technique.",
-    duration: "45 – 60 min",
-    price: "PKR 3,000",
-    tag: "Most Popular",
-    features: ["Targeted trigger point release", "Pain reduction support", "Range-of-motion restoration", "Progress-based follow-ups"],
-    rating: 4.8,
-    reviewCount: 24,
-  },
-  {
-    id: 2,
-    icon: Activity,
-    category: "Therapy",
-    title: "Massage Therapy",
-    tagline: "Soft tissue recovery for pain and tension",
-    desc: "Hands-on therapeutic massage to improve blood flow, relax tight tissue, and accelerate healing for sports and daily-life strain.",
-    duration: "45 – 60 min",
-    price: "PKR 2,500",
-    tag: null,
-    features: ["Soft tissue mobilization", "Muscle tension release", "Improved flexibility", "Recovery-focused care"],
-    rating: 4.8,
-    reviewCount: 20,
-  },
-  {
-    id: 3,
-    icon: Shield,
-    category: "Conditions",
-    title: "Back Pain Rehabilitation",
-    tagline: "Move comfortably with less pain",
-    desc: "Clinical rehabilitation for acute and chronic back pain with posture correction, manual therapy, and guided strengthening.",
-    duration: "45 min",
-    price: "PKR 3,500",
-    tag: null,
-    features: ["Posture and load assessment", "Pain management techniques", "Core stabilization exercises", "Home plan guidance"],
-    rating: 4.7,
-    reviewCount: 19,
-  },
-  {
-    id: 4,
-    icon: Activity,
-    category: "Conditions",
-    title: "Neck Pain Rehabilitation",
-    tagline: "Restore neck function and comfort",
-    desc: "Specialized treatment for cervical pain and stiffness using manual therapy, mobility work, and progressive strengthening.",
-    duration: "45 min",
-    price: "PKR 3,200",
-    tag: null,
-    features: ["Cervical mobility improvement", "Muscle spasm management", "Postural correction", "Recurrence prevention plan"],
-    rating: 4.8,
-    reviewCount: 16,
-  },
-  {
-    id: 5,
-    icon: Shield,
-    category: "Conditions",
-    title: "Sciatica Management",
-    tagline: "Reduce radiating pain and numbness",
-    desc: "Evidence-based sciatica treatment focused on nerve irritation relief, pain reduction, and safer movement patterns.",
-    duration: "45 min",
-    price: "PKR 3,500",
-    tag: null,
-    features: ["Nerve glide protocols", "Lumbar decompression work", "Pain and numbness control", "Functional movement retraining"],
-    rating: 4.8,
-    reviewCount: 14,
-  },
-  {
-    id: 6,
-    icon: Zap,
-    category: "Rehabilitation",
-    title: "Post Surgical Conditions",
-    tagline: "Guided recovery after surgery",
-    desc: "Structured rehabilitation to restore strength, mobility, and confidence after orthopedic and soft tissue surgical procedures.",
-    duration: "60 min",
-    price: "PKR 4,000",
-    tag: "New",
-    features: ["Post-op protocol alignment", "Joint mobility restoration", "Strength rebuilding", "Functional return planning"],
-    rating: 4.8,
-    reviewCount: 13,
-  },
-  {
-    id: 7,
-    icon: Users,
-    category: "Rehabilitation",
-    title: "Old Age Rehabilitation",
-    tagline: "Safer movement and stronger independence",
-    desc: "Gentle and progressive rehabilitation for older adults to improve balance, mobility, and everyday confidence.",
-    duration: "45 min",
-    price: "PKR 2,800",
-    tag: null,
-    features: ["Balance and fall-risk support", "Functional strength training", "Mobility enhancement", "Individualized pace of care"],
-    rating: 4.7,
-    reviewCount: 11,
-  },
-];
-
 // ── Service card ──────────────────────────────────────────────────────────────
 function ServiceCard({ service, isAdmin }) {
   const { icon: Icon, category, title, tagline, desc, duration, price, tag, features, rating, reviewCount } = service;
@@ -292,7 +191,7 @@ export default function Services() {
       } catch {
         if (cancelled) return;
         setApiServices([]);
-        setLoadError("Live services are temporarily unavailable. Showing clinic catalog.");
+        setLoadError("Live services are temporarily unavailable.");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -302,7 +201,7 @@ export default function Services() {
     return () => { cancelled = true; };
   }, []);
 
-  const sourceServices = apiServices.length > 0 ? apiServices : SERVICES;
+  const sourceServices = apiServices;
 
   const availableCategories = useMemo(() => {
     const dynamic = Array.from(new Set(sourceServices.map((s) => s.category))).filter(Boolean);

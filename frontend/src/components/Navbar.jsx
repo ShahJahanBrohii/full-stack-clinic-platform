@@ -3,7 +3,6 @@ import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   Menu,
   X,
-  Activity,
   ChevronRight,
   User,
   LogOut,
@@ -107,9 +106,6 @@ export default function Navbar() {
               className="flex items-center gap-3 group select-none"
               aria-label={`${settings.clinicName} — Home`}
             >
-              <div className="w-9 h-9 flex items-center justify-center bg-gradient-primary group-hover:bg-accent transition-colors duration-200">
-                <Activity size={18} strokeWidth={2.5} className="text-white" />
-              </div>
               <div className="flex flex-col leading-none">
                 <span
                   className="text-slate-900 font-black text-lg tracking-tight"

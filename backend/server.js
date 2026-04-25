@@ -11,6 +11,10 @@ dotenv.config();
 const app = express();
 
 const normalizeOrigin = (origin) => (origin || '').trim().replace(/\/+$/, '');
+const isLocalDevOrigin = (origin) => {
+  const value = normalizeOrigin(origin).toLowerCase();
+  return value.includes('://localhost') || value.includes('://127.0.0.1');
+};
 
 const configuredOrigins = (process.env.CORS_ORIGIN || '')
   .split(',')
@@ -22,23 +26,29 @@ const localDevOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173'];
 const allowedOrigins = [...new Set([...configuredOrigins, ...localDevOrigins])];
 
 // ── MIDDLEWARE ─────────────────────────────────────────────────────────────
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no Origin header (like server-to-server or curl)
-    if (!origin) return callback(null, true);
+const corsOptions = process.env.NODE_ENV === 'production'
+  ? {
+      origin: (origin, callback) => {
+        // Allow requests with no Origin header (like server-to-server or curl)
+        if (!origin) return callback(null, true);
 
-    // If no CORS origins are configured, allow all origins.
-    if (allowedOrigins.length === 0) return callback(null, true);
+        // If no CORS origins are configured, allow all origins.
+        if (allowedOrigins.length === 0) return callback(null, true);
 
-    const normalizedOrigin = normalizeOrigin(origin);
+        const normalizedOrigin = normalizeOrigin(origin);
 
-    if (allowedOrigins.includes(normalizedOrigin)) {
-      return callback(null, true);
+        if (isLocalDevOrigin(normalizedOrigin) || allowedOrigins.includes(normalizedOrigin)) {
+          return callback(null, true);
+        }
+
+        return callback(new Error(`CORS blocked for origin: ${origin}`));
+      },
     }
+  : {
+      origin: true,
+    };
 
-    return callback(new Error(`CORS blocked for origin: ${origin}`));
-  },
-}));
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '2mb' })); // Allow payment proof image uploads
 app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 

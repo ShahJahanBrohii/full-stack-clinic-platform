@@ -231,17 +231,30 @@ const StepService = memo(function StepService({ draft, setDraft }) {
 // ── Step 2 — Date & time ──────────────────────────────────────────────────────
 const StepDateTime = memo(function StepDateTime({ draft, setDraft }) {
   const dates = getAvailableDates();
-  const [availableSlots, setAvailableSlots] = useState(TIME_SLOTS); // default: all slots available
+  const [availableSlots, setAvailableSlots] = useState([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
+  const [slotsError, setSlotsError] = useState("");
 
   // Fetch available slots when date changes — single API call, no double-fetch
   useEffect(() => {
-    if (!draft.date || !draft.serviceId) return;
+    if (!draft.date || !draft.serviceId) {
+      setAvailableSlots([]);
+      setSlotsError("");
+      return;
+    }
     let cancelled = false;
     setSlotsLoading(true);
+    setSlotsError("");
     bookingAPI.getAvailableSlots(draft.serviceId, draft.date)
-      .then((res) => { if (!cancelled) setAvailableSlots(res.data.availableSlots ?? TIME_SLOTS); })
-      .catch(() => { if (!cancelled) setAvailableSlots(TIME_SLOTS); }) // fallback: show all slots
+      .then((res) => {
+        if (cancelled) return;
+        setAvailableSlots(Array.isArray(res?.data?.availableSlots) ? res.data.availableSlots : []);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setAvailableSlots([]);
+        setSlotsError("Unable to fetch real-time slot availability. Please retry.");
+      })
       .finally(() => { if (!cancelled) setSlotsLoading(false); });
     return () => { cancelled = true; };
   }, [draft.date, draft.serviceId]);
@@ -330,6 +343,14 @@ const StepDateTime = memo(function StepDateTime({ draft, setDraft }) {
               );
             })}
           </div>
+          {slotsError && (
+            <p className="mt-3 text-xs text-red-500" role="alert">{slotsError}</p>
+          )}
+          {!slotsLoading && !slotsError && availableSlots.length === 0 && (
+            <p className="mt-3 text-xs text-slate-600" role="status">
+              No slots are currently available for this date.
+            </p>
+          )}
         </div>
       )}
     </div>

@@ -1,6 +1,6 @@
 import { useState, useId } from "react";
 import { NavLink, useNavigate, useLocation, Navigate } from "react-router-dom";
-import { Eye, EyeOff, LogIn, AlertCircle, Activity, Loader2 } from "lucide-react";
+import { Eye, EyeOff, LogIn, AlertCircle, Loader2 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { useClinicSettings } from "../context/ClinicSettingsContext";
 
@@ -113,9 +113,6 @@ export default function Login() {
 
         {/* Logo */}
         <NavLink to="/" className="flex items-center gap-3 group w-fit relative z-10" aria-label={`${settings.clinicName} — Home`}>
-          <div className="w-9 h-9 flex items-center justify-center bg-primary">
-            <Activity size={18} strokeWidth={2.5} className="text-text-primary" aria-hidden="true" />
-          </div>
           <div className="flex flex-col leading-none">
             <span
               className="text-white font-black text-lg"
@@ -167,9 +164,6 @@ export default function Login() {
 
         {/* Mobile logo */}
         <NavLink to="/" className="flex lg:hidden items-center gap-3 mb-10 group" aria-label={`${settings.clinicName} — Home`}>
-          <div className="w-8 h-8 flex items-center justify-center bg-primary">
-            <Activity size={16} strokeWidth={2.5} className="text-text-primary" aria-hidden="true" />
-          </div>
           <span
             className="text-white font-black text-base"
             style={{ fontFamily: "'Barlow Condensed', sans-serif" }}

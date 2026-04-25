@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   ArrowUpRight,
@@ -12,45 +12,13 @@ import {
   CheckCircle2,
   CalendarCheck,
 } from "lucide-react";
-import { authAPI } from "../services/api";
+import { authAPI, servicesAPI } from "../services/api";
 import { useAuth } from "../hooks/useAuth";
 import { useClinicSettings } from "../context/ClinicSettingsContext";
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
-const STATS = [
-  { value: "2",      label: "Direct Hotline Numbers" },
-  { value: "7+",     label: "Core Treatment Areas" },
-  { value: "100%",   label: "Personalized Plans" },
-  { value: "1",      label: "Recovery-Focused Team" },
-];
-
-const SERVICES_PREVIEW = [
-  {
-    icon: Zap,
-    title: "Dry Needling Therapy",
-    desc: "Targeted dry needling sessions to reduce muscle tightness, release trigger points, and improve movement.",
-    tag: "Most Popular",
-  },
-  {
-    icon: Activity,
-    title: "Massage Therapy",
-    desc: "Therapeutic soft tissue treatment designed to ease pain, improve circulation, and support tissue healing.",
-    tag: null,
-  },
-  {
-    icon: Shield,
-    title: "Back, Neck & Sciatica Care",
-    desc: "Evidence-based rehabilitation for common pain conditions with a plan built around your daily function.",
-    tag: null,
-  },
-  {
-    icon: Users,
-    title: "Post-Surgical & Old Age Rehab",
-    desc: "Safe progressive rehabilitation to restore confidence, strength, and independence after surgery or aging-related decline.",
-    tag: "Expert Care",
-  },
-];
+const PREVIEW_SERVICE_LIMIT = 4;
 
 const PROCESS_STEPS = [
   { step: "01", title: "Book Consultation",   desc: "Share your symptoms and goals so we can prepare your first session." },
@@ -67,6 +35,15 @@ const HERO_FEATURE_CARDS = [
 ];
 
 const TRUST_AVATARS = ["AH", "SR", "BK", "NF"];
+
+function iconForCategory(category = "") {
+  const key = String(category).toLowerCase();
+  if (key.includes("rehab")) return Zap;
+  if (key.includes("therap")) return Activity;
+  if (key.includes("condition")) return Shield;
+  if (key.includes("group") || key.includes("team")) return Users;
+  return Activity;
+}
 
 // ── Animated counter hook ────────────────────────────────────────────────────
 function useCountUp(target, duration = 1800, start = false) {
@@ -143,6 +120,8 @@ export default function Home() {
   const { settings } = useClinicSettings();
   const isAdmin = user?.role === "admin";
   const [patientStories, setPatientStories] = useState([]);
+  const [allServices, setAllServices] = useState([]);
+  const [servicesLoading, setServicesLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -160,6 +139,49 @@ export default function Home() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadServices = async () => {
+      setServicesLoading(true);
+      try {
+        const res = await servicesAPI.getAll();
+        if (cancelled) return;
+        setAllServices(Array.isArray(res?.data?.services) ? res.data.services : []);
+      } catch {
+        if (!cancelled) setAllServices([]);
+      } finally {
+        if (!cancelled) setServicesLoading(false);
+      }
+    };
+
+    loadServices();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const servicesPreview = useMemo(
+    () => allServices.slice(0, PREVIEW_SERVICE_LIMIT),
+    [allServices]
+  );
+
+  const liveStats = useMemo(() => {
+    const activeServiceCount = allServices.length;
+    const distinctCategories = new Set(
+      allServices.map((service) => String(service.category || "").trim()).filter(Boolean)
+    ).size;
+    const openDays = Object.values(settings?.availability || {}).filter(Boolean).length;
+    const storiesCount = patientStories.length;
+
+    return [
+      { value: `${activeServiceCount}`, label: "Active Services" },
+      { value: `${distinctCategories}`, label: "Treatment Categories" },
+      { value: `${openDays}`, label: "Open Days / Week" },
+      { value: `${storiesCount}`, label: "Patient Stories" },
+    ];
+  }, [allServices, patientStories.length, settings?.availability]);
 
   return (
     <div className="overflow-x-hidden">
@@ -316,7 +338,7 @@ export default function Home() {
       {/* ═══ STATS BAR ═════════════════════════════════════════════════════════ */}
       <section className="bg-bg-secondary border-y border-slate-200" aria-label="Clinic statistics">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-2 lg:grid-cols-4 gap-8">
-          {STATS.map((s) => (
+          {liveStats.map((s) => (
             <StatCard key={s.label} {...s} />
           ))}
         </div>
@@ -349,17 +371,21 @@ export default function Home() {
             </NavLink>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {SERVICES_PREVIEW.map(({ icon: Icon, title, desc, tag }) => (
+          {servicesLoading ? (
+            <p className="text-sm text-slate-600">Loading live services...</p>
+          ) : servicesPreview.length === 0 ? (
+            <p className="text-sm text-slate-600">Services will appear here once they are available.</p>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {servicesPreview.map((service) => {
+              const Icon = iconForCategory(service.category);
+              const title = service.title || service.name || "Service";
+              const desc = service.description || "";
+              return (
               <article
-                key={title}
+                key={service._id || title}
                 className="relative p-6 bg-white border border-slate-200 flex flex-col gap-5 group hover:border-primary/40 hover:bg-primary/3 transition-all duration-300"
               >
-                {tag && (
-                  <span className="absolute top-4 right-4 text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 bg-primary text-text-primary">
-                    {tag}
-                  </span>
-                )}
                 <div className="w-10 h-10 flex items-center justify-center bg-primary/10 border border-primary/20 group-hover:bg-primary group-hover:border-primary transition-all duration-300">
                   <Icon size={18} className="text-primary group-hover:text-text-primary transition-colors duration-300" aria-hidden="true" />
                 </div>
@@ -380,8 +406,10 @@ export default function Home() {
                   Learn More <ChevronRight size={12} aria-hidden="true" />
                 </NavLink>
               </article>
-            ))}
+            );
+            })}
           </div>
+          )}
         </div>
       </section>
 

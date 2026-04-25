@@ -5,7 +5,6 @@ import {
   EyeOff,
   UserPlus,
   AlertCircle,
-  Activity,
   Loader2,
   CheckCircle2,
   Check,
@@ -190,9 +189,6 @@ export default function Register() {
       <div className="hidden lg:flex flex-col justify-between w-[42%] bg-surface-dark border-r border-primary/30 p-12 relative overflow-hidden">
 
         <NavLink to="/" className="flex items-center gap-3 group w-fit relative z-10" aria-label={`${settings.clinicName} — Home`}>
-          <div className="w-9 h-9 flex items-center justify-center bg-primary">
-            <Activity size={18} strokeWidth={2.5} className="text-text-primary" aria-hidden="true" />
-          </div>
           <div className="flex flex-col leading-none">
             <span
               className="text-white font-black text-lg"
@@ -246,9 +242,6 @@ export default function Register() {
 
         {/* Mobile logo */}
         <NavLink to="/" className="flex lg:hidden items-center gap-3 mb-8 group" aria-label={`${settings.clinicName} — Home`}>
-          <div className="w-8 h-8 flex items-center justify-center bg-gradient-primary">
-            <Activity size={16} strokeWidth={2.5} className="text-text-primary" aria-hidden="true" />
-          </div>
           <span
             className="text-white font-black text-base"
             style={{ fontFamily: "'Barlow Condensed', sans-serif" }}

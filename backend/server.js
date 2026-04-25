@@ -17,11 +17,9 @@ const configuredOrigins = (process.env.CORS_ORIGIN || '')
   .map(normalizeOrigin)
   .filter(Boolean);
 
-if (process.env.NODE_ENV !== 'production') {
-  configuredOrigins.push('http://localhost:5173', 'http://127.0.0.1:5173');
-}
+const localDevOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173'];
 
-const allowedOrigins = [...new Set(configuredOrigins)];
+const allowedOrigins = [...new Set([...configuredOrigins, ...localDevOrigins])];
 
 // ── MIDDLEWARE ─────────────────────────────────────────────────────────────
 app.use(cors({
@@ -108,9 +106,6 @@ app.use(errorHandler);
 
 // ── START SERVER ────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-});
 
 const startServer = async () => {
   await connectDB();
@@ -118,7 +113,7 @@ const startServer = async () => {
   // Initialize appointment reminder scheduler
   initializeReminderScheduler();
 
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`
 ╔════════════════════════════════════════════════════════╗
 ║  🚀 Apex Clinic Server Ready                          ║

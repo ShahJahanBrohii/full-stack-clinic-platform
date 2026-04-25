@@ -17,9 +17,7 @@ const nodemailer = require('nodemailer');
  */
 const createTransporter = () => {
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-    if (process.env.NODE_ENV !== 'production') {
-      console.warn('⚠️  Email credentials not configured. Email sending disabled.');
-    }
+    console.warn('⚠️  Email credentials not configured. Email sending disabled.');
     return null;
   }
 

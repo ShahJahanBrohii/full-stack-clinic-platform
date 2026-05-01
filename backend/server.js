@@ -38,7 +38,9 @@ const corsOptions = process.env.NODE_ENV === 'production'
         const normalizedOrigin = normalizeOrigin(origin);
 
         if (isLocalDevOrigin(normalizedOrigin) || allowedOrigins.includes(normalizedOrigin)) {
-          return callback(null, true);
+          // Return the normalized origin string so the CORS header exactly
+          // matches the allowed value (avoids trailing-slash mismatches).
+          return callback(null, normalizedOrigin);
         }
 
         return callback(new Error(`CORS blocked for origin: ${origin}`));

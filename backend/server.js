@@ -116,6 +116,7 @@ app.use(errorHandler);
 
 // ── START SERVER ────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
+const PUBLIC_BASE_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
 
 const startServer = async () => {
   await connectDB();
@@ -130,7 +131,8 @@ const startServer = async () => {
 ╠════════════════════════════════════════════════════════╣
 ║  Port: ${PORT}
 ║  Environment: ${process.env.NODE_ENV || 'development'}
-║  API: http://localhost:${PORT}/api
+║  Public URL: ${PUBLIC_BASE_URL}
+║  API: ${PUBLIC_BASE_URL}/api
 ║  Rate Limiting: Enabled
 ║  Validation: Enabled
 ╚════════════════════════════════════════════════════════╝

@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://full-stack-clinic-platform.onrender.com/api/:path*"
+      "destination": "https://clinic-backend-5hrj.onrender.com/api/:path*"
     }
   ]
 }

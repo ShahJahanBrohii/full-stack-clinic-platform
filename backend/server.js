@@ -1,6 +1,5 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
 const dotenv = require('dotenv');
 const { errorHandler } = require('./utils/errors');
 const { authLimiter, apiLimiter } = require('./middleware/rateLimiter');
@@ -26,29 +25,36 @@ const localDevOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173'];
 const allowedOrigins = [...new Set([...configuredOrigins, ...localDevOrigins])];
 
 // ── MIDDLEWARE ─────────────────────────────────────────────────────────────
-const corsOptions = process.env.NODE_ENV === 'production'
-  ? {
-      origin: (origin, callback) => {
-        // Allow requests with no Origin header (like server-to-server or curl)
-        if (!origin) return callback(null, true);
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
 
-        // If no CORS origins are configured, allow all origins.
-        if (allowedOrigins.length === 0) return callback(null, true);
+  if (!origin) {
+    return next();
+  }
 
-        const normalizedOrigin = normalizeOrigin(origin);
+  const normalizedOrigin = normalizeOrigin(origin);
+  const isAllowed =
+    allowedOrigins.length === 0 ||
+    isLocalDevOrigin(normalizedOrigin) ||
+    allowedOrigins.includes(normalizedOrigin);
 
-        if (isLocalDevOrigin(normalizedOrigin) || allowedOrigins.includes(normalizedOrigin)) {
-          return callback(null, normalizedOrigin);
-        }
+  if (!isAllowed) {
+    return next(new Error(`CORS blocked for origin: ${origin}`));
+  }
 
-        return callback(new Error(`CORS blocked for origin: ${origin}`));
-      },
-    }
-  : {
-      origin: true,
-    };
+  res.setHeader('Access-Control-Allow-Origin', normalizedOrigin);
+  res.setHeader('Vary', 'Origin');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
 
-app.use(cors(corsOptions));
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+
+  return next();
+});
+
 app.use(express.json({ limit: '2mb' })); // Allow payment proof image uploads
 app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 

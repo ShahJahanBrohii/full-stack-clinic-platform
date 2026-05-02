@@ -5,6 +5,8 @@ import {
   AlertCircle, ChevronDown, ChevronUp, Save, Plus,
 } from "lucide-react";
 import api from "../../services/api";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
 import { BulkActionsBar } from "../../components/BulkActionsBar";
 
 function PatientModal({ patient, onClose, onSave }) {
@@ -92,8 +94,7 @@ function PatientModal({ patient, onClose, onSave }) {
                 ].map(({ label, key }) => (
                   <div key={key} className="flex flex-col gap-1.5">
                     <label className="text-[10px] font-black tracking-widest uppercase text-slate-600">{label}</label>
-                    <input value={form[key] || ""} onChange={(e) => setForm(p => ({ ...p, [key]: e.target.value }))}
-                      className="bg-white/3 border border-white/10 px-3 py-2.5 text-sm text-white outline-none focus:border-accent transition-colors" />
+                    <Input value={form[key] || ""} onChange={(val) => setForm(p => ({ ...p, [key]: val }))} className="bg-white/3 text-white border-white/10" />
                   </div>
                 ))}
               </div>
@@ -148,12 +149,11 @@ function PatientModal({ patient, onClose, onSave }) {
         </div>
 
         {tab === "profile" && (
-          <div className="flex justify-end gap-2 px-6 py-4 border-t border-white/5 shrink-0">
-            <button onClick={onClose} className="px-4 py-2 border border-white/10 text-slate-400 text-xs font-bold tracking-widest uppercase hover:text-white transition-colors">Cancel</button>
-            <button onClick={handleSave} disabled={saving}
-              className="flex items-center gap-2 px-5 py-2 bg-accent text-text-primary text-xs font-bold tracking-widest uppercase hover:bg-white transition-colors disabled:opacity-50">
+            <div className="flex justify-end gap-2 px-6 py-4 border-t border-white/5 shrink-0">
+            <Button onClick={onClose} variant="secondary" className="px-4 py-2 text-xs">Cancel</Button>
+            <Button onClick={handleSave} loading={saving} className="px-5 py-2 text-xs" variant="primary">
               {saving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />} Save
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -220,13 +220,13 @@ export default function AdminPatients() {
     <div className="p-6 lg:p-8 flex flex-col gap-6">
       {viewTarget && <PatientModal patient={viewTarget} onClose={() => setViewTarget(null)} onSave={handleSave} />}
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setDeleteTarget(null)}>
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setDeleteTarget(null)}>
           <div className="w-full max-w-sm bg-surface-dark border border-red-500/20 p-6 flex flex-col gap-5" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-sm font-black text-white">Deactivate Patient Account</h3>
             <p className="text-sm text-slate-400">This will deactivate <strong className="text-white">{deleteTarget.name}</strong>. Their account can be reactivated later.</p>
             <div className="flex gap-2">
-              <button onClick={() => handleDelete(deleteTarget._id)} className="px-4 py-2 bg-red-500/20 border border-red-500/30 text-red-400 text-xs font-bold tracking-widest uppercase hover:bg-red-500/30">Deactivate</button>
-              <button onClick={() => setDeleteTarget(null)} className="px-4 py-2 border border-white/10 text-slate-500 text-xs font-bold tracking-widest uppercase">Cancel</button>
+              <Button onClick={() => handleDelete(deleteTarget._id)} className="px-4 py-2 text-xs bg-red-500/20 border-red-500/30 text-red-400" variant="primary">Deactivate</Button>
+              <Button onClick={() => setDeleteTarget(null)} variant="secondary" className="px-4 py-2 text-xs">Cancel</Button>
             </div>
           </div>
         </div>
@@ -271,11 +271,10 @@ export default function AdminPatients() {
           {search && <button onClick={() => setSearch("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-900"><X size={12} /></button>}
         </div>
         {["all", "active", "inactive"].map((s) => (
-          <button key={s} onClick={() => setStatusFilter(s)}
-            className={`px-3 py-2 text-[10px] font-bold tracking-widest border transition-all duration-150 capitalize ${
-              statusFilter === s ? "bg-primary border-primary text-text-primary" : "border-white/10 text-slate-500 hover:text-slate-900 hover:border-slate-400"
-            }`}>{s === "all" ? "All Patients" : s}</button>
-        ))}
+            <Button key={s} onClick={() => setStatusFilter(s)} variant={statusFilter === s ? 'primary' : 'secondary'} className="px-3 py-2 text-[10px] capitalize">
+              {s === 'all' ? 'All Patients' : s}
+            </Button>
+          ))}
       </div>
 
       <BulkActionsBar

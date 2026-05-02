@@ -93,8 +93,8 @@ npm install
 # - JWT_SECRET=shahjahanbrohi
 # - PORT=5000
 
-# Create admin account (run once)
-node createAdmin.js
+# Create or reset admin account (run again any time)
+node createAdmin.js --email=admin@apexclinic.pk --password=admin12345 --name="Shah Jahan Admin"
 
 # Start the backend server
 npm
@@ -142,11 +142,17 @@ npm run dev
 
 ### 1. Create Admin Account
 
-The admin account is created during backend setup:
+The admin account is created during backend setup and can be reset later with the same command:
 
 ```
 Email: admin@apexclinic.pk
 Password: admin12345
+```
+
+If the login keeps failing, rerun:
+
+```bash
+node createAdmin.js --email=admin@apexclinic.pk --password=admin12345 --name="Shah Jahan Admin"
 ```
 
 ### 2. Login as Admin

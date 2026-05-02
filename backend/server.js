@@ -9,6 +9,8 @@ dotenv.config();
 
 const app = express();
 
+const getMongoUri = () => process.env.MONGO_URI || process.env.MONGO_URL;
+
 const normalizeOrigin = (origin) => (origin || '').trim().replace(/\/+$/, '');
 const isLocalDevOrigin = (origin) => {
   const value = normalizeOrigin(origin).toLowerCase();
@@ -66,7 +68,13 @@ app.use('/api/auth/register', authLimiter); // Strict limit on registration
 // ── DATABASE CONNECTION ────────────────────────────────────────────────────
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
+    const mongoUri = getMongoUri();
+
+    if (!mongoUri) {
+      throw new Error('Missing MongoDB connection string. Set MONGO_URI or MONGO_URL.');
+    }
+
+    await mongoose.connect(mongoUri);
     console.log('✓ MongoDB connected successfully');
   } catch (error) {
     console.error('✗ MongoDB connection failed:', error.message);

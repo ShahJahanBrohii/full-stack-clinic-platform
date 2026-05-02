@@ -4,9 +4,17 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+const getMongoUri = () => process.env.MONGO_URI || process.env.MONGO_URL;
+
 const checkAdmin = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
+    const mongoUri = getMongoUri();
+
+    if (!mongoUri) {
+      throw new Error('Missing MongoDB connection string. Set MONGO_URI or MONGO_URL.');
+    }
+
+    await mongoose.connect(mongoUri);
     console.log('✓ Connected to MongoDB');
 
     const adminEmail = 'admin@apexclinic.pk';

@@ -5,6 +5,8 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+const getMongoUri = () => process.env.MONGO_URI || process.env.MONGO_URL;
+
 function parseCliArgs(argv) {
   return argv.reduce((acc, entry) => {
     if (!entry.startsWith('--')) return acc;
@@ -23,7 +25,13 @@ function parseCliArgs(argv) {
 
 const createAdmin = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
+    const mongoUri = getMongoUri();
+
+    if (!mongoUri) {
+      throw new Error('Missing MongoDB connection string. Set MONGO_URI or MONGO_URL.');
+    }
+
+    await mongoose.connect(mongoUri);
 
     const cliArgs = parseCliArgs(process.argv.slice(2));
     const adminEmail = String(cliArgs.email || process.env.ADMIN_EMAIL || 'admin@apexclinic.pk')

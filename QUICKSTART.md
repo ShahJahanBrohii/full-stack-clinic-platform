@@ -14,6 +14,12 @@ node createAdmin.js
 npm start
 ```
 
+If the admin login is already out of sync, run this instead to reset it:
+
+```bash
+node createAdmin.js --email=admin@apexclinic.pk --password=admin12345 --name="Shah Jahan Admin"
+```
+
 Expected output: `🚀 Server running on port 5000`
 
 ### Step 2: Start Frontend (New Terminal)

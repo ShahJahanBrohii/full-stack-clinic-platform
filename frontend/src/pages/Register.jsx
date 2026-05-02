@@ -12,6 +12,7 @@ import {
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../context/ToastContext";
 import { useClinicSettings } from "../context/ClinicSettingsContext";
+import Button from "../components/ui/Button";
 
 // ── Password strength checker ─────────────────────────────────────────────────
 const STRENGTH_RULES = [
@@ -479,12 +480,7 @@ export default function Register() {
             </div>
 
             {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading}
-              aria-busy={loading}
-              className="mt-2 flex items-center justify-center gap-3 w-full py-4 bg-primary text-text-primary font-bold text-sm tracking-widest uppercase hover:bg-secondary transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+            <Button type="submit" loading={loading} className="mt-2 w-full" variant="primary">
               {loading ? (
                 <>
                   <Loader2 size={16} className="animate-spin" aria-hidden="true" />
@@ -496,7 +492,7 @@ export default function Register() {
                   Create Account
                 </>
               )}
-            </button>
+            </Button>
           </form>
 
           <div className="mt-8 pt-6 border-t border-slate-200 text-center">

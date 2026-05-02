@@ -1,6 +1,7 @@
 import { useState, useId } from "react";
 import { NavLink, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { Eye, EyeOff, LogIn, AlertCircle, Loader2 } from "lucide-react";
+import Button from "../components/ui/Button";
 import { useAuth } from "../hooks/useAuth";
 import { useClinicSettings } from "../context/ClinicSettingsContext";
 
@@ -41,20 +42,12 @@ export default function Login() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-2 mt-1">
-            <button
-              type="button"
-              onClick={() => navigate(dashboardPath, { replace: true })}
-              className="flex-1 px-4 py-3 bg-primary text-text-primary font-bold text-xs tracking-widest uppercase hover:bg-white transition-colors duration-200"
-            >
+            <Button type="button" className="flex-1 text-xs" onClick={() => navigate(dashboardPath, { replace: true })}>
               Continue
-            </button>
-            <button
-              type="button"
-              onClick={logout}
-              className="flex-1 px-4 py-3 border border-slate-300 text-slate-700 font-bold text-xs tracking-widest uppercase hover:text-slate-900 hover:border-slate-400 transition-colors duration-200"
-            >
+            </Button>
+            <Button type="button" variant="secondary" className="flex-1 text-xs" onClick={logout}>
               Switch Account
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -289,12 +282,7 @@ export default function Login() {
             </div>
 
             {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading}
-              aria-busy={loading}
-              className="mt-2 flex items-center justify-center gap-3 w-full py-4 bg-primary text-text-primary font-bold text-sm tracking-widest uppercase hover:bg-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+            <Button type="submit" loading={loading} className="mt-2 w-full" variant="primary">
               {loading ? (
                 <>
                   <Loader2 size={16} className="animate-spin" aria-hidden="true" />
@@ -306,7 +294,7 @@ export default function Login() {
                   Sign In
                 </>
               )}
-            </button>
+            </Button>
           </form>
 
           {/* Divider + register link */}

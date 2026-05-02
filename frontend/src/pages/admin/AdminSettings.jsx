@@ -1,4 +1,6 @@
 import { useState } from "react";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
 import {
   Save, Loader2, CheckCircle2, AlertCircle,
   User, Clock, Bell, Lock, Globe, Building,
@@ -27,12 +29,7 @@ function SettingRow({ label, desc, children }) {
   );
 }
 
-function Input({ value, onChange, placeholder, type = "text" }) {
-  return (
-    <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
-      className="w-full bg-white/60 border border-slate-300 px-3 py-2.5 text-sm text-slate-900 placeholder-slate-500 outline-none focus:border-[accent] transition-colors duration-150" />
-  );
-}
+
 
 function Toggle({ checked, onChange }) {
   return (
@@ -50,10 +47,9 @@ function SaveBar({ onSave, saving, saved, error }) {
         {saved && <p className="text-xs text-[accent] flex items-center gap-1.5"><CheckCircle2 size={12} /> Changes saved</p>}
         {error && <p className="text-xs text-red-400 flex items-center gap-1.5"><AlertCircle size={12} /> {error}</p>}
       </div>
-      <button onClick={onSave} disabled={saving}
-        className="flex items-center gap-2 px-5 py-2.5 bg-[accent] text-text-primary text-xs font-bold tracking-widest uppercase hover:bg-white transition-colors disabled:opacity-50">
+      <Button onClick={onSave} loading={saving} variant="primary" className="px-5 py-2.5 text-xs">
         {saving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />} Save Changes
-      </button>
+      </Button>
     </div>
   );
 }

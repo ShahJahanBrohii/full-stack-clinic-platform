@@ -5,13 +5,32 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+function parseCliArgs(argv) {
+  return argv.reduce((acc, entry) => {
+    if (!entry.startsWith('--')) return acc;
+
+    const [rawKey, ...rest] = entry.slice(2).split('=');
+    const key = rawKey.trim();
+    const value = rest.length > 0 ? rest.join('=') : 'true';
+
+    if (key) {
+      acc[key] = value;
+    }
+
+    return acc;
+  }, {});
+}
+
 const createAdmin = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
 
-    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@apexclinic.pk').toLowerCase();
-    const adminPassword = process.env.ADMIN_PASSWORD || 'admin12345';
-    const adminName = process.env.ADMIN_NAME || 'Shah Jahan Admin';
+    const cliArgs = parseCliArgs(process.argv.slice(2));
+    const adminEmail = String(cliArgs.email || process.env.ADMIN_EMAIL || 'admin@apexclinic.pk')
+      .trim()
+      .toLowerCase();
+    const adminPassword = String(cliArgs.password || process.env.ADMIN_PASSWORD || 'admin12345');
+    const adminName = String(cliArgs.name || process.env.ADMIN_NAME || 'Shah Jahan Admin').trim();
 
     const hashedPassword = await bcrypt.hash(adminPassword, 10);
     const existingUser = await User.findOne({ email: adminEmail });

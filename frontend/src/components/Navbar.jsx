@@ -211,6 +211,16 @@ export default function Navbar() {
                           <LayoutDashboard size={14} className="text-primary" aria-hidden="true" />
                           {isAdmin ? "Admin Dashboard" : "My Dashboard"}
                         </NavLink>
+                        {!isAdmin && (
+                          <NavLink
+                            to="/settings"
+                            role="menuitem"
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150"
+                          >
+                            <User size={14} className="text-primary" aria-hidden="true" />
+                            Settings
+                          </NavLink>
+                        )}
                         <div className="my-1 border-t border-slate-100" role="separator" />
                         <button
                           onClick={handleLogout}

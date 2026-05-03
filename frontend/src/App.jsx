@@ -14,10 +14,12 @@ import ResetPassword from "./pages/ResetPassword";
 // Patient pages (protected)
 import Dashboard from "./pages/Dashboard";
 import BookingProcess from "./pages/BookingProcess";
+import PatientSettings from "./pages/PatientSettings";
 
 // Admin pages (protected + role-gated)
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminActivity from "./pages/admin/AdminActivity";
 import AdminBookings from "./pages/admin/AdminBookings";
 import AdminCreateBooking from "./pages/admin/AdminCreateBooking";
 import AdminPatients from "./pages/admin/AdminPatients";
@@ -48,6 +50,7 @@ export default function App() {
           element={<AdminRoute><AdminLayout /></AdminRoute>}
         >
           <Route index element={<AdminDashboard />} />
+          <Route path="activity" element={<AdminActivity />} />
           <Route path="bookings" element={<AdminBookings />} />
           <Route path="bookings/new" element={<AdminCreateBooking />} />
           <Route path="patients" element={<AdminPatients />} />
@@ -83,6 +86,14 @@ export default function App() {
                     element={
                       <ProtectedRoute requiredRole="patient" roleFallback="/admin">
                         <BookingProcess />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/settings"
+                    element={
+                      <ProtectedRoute requiredRole="patient" roleFallback="/admin">
+                        <PatientSettings />
                       </ProtectedRoute>
                     }
                   />

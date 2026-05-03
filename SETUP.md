@@ -93,6 +93,10 @@ npm install
 # - JWT_SECRET=shahjahanbrohi
 # - PORT=5000
 
+# If you deploy to MongoDB Atlas on Render, use an SRV URI without a port:
+# MONGO_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/clinic?appName=Cluster0
+# Do not add :27017 to a mongodb+srv URI.
+
 # Create or reset admin account (run again any time)
 node createAdmin.js --email=admin@apexclinic.pk --password=admin12345 --name="Shah Jahan Admin"
 

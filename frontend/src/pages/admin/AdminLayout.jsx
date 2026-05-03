@@ -14,6 +14,7 @@ const NAV_SECTIONS = [
     title: "Overview",
     items: [
       { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
+      { to: "/admin/activity", label: "Activity", icon: Activity },
       { to: "/admin/analytics", label: "Analytics", icon: BarChart2 },
     ],
   },
@@ -61,6 +62,7 @@ export default function AdminLayout() {
 
   const currentSectionLabel = (() => {
     if (location.pathname === "/admin" || location.pathname === "/admin/") return "Dashboard";
+    if (location.pathname.startsWith("/admin/activity")) return "Activity";
     if (location.pathname.startsWith("/admin/analytics")) return "Analytics";
     if (location.pathname.startsWith("/admin/bookings")) return "Bookings";
     if (location.pathname.startsWith("/admin/patients")) return "Patients";

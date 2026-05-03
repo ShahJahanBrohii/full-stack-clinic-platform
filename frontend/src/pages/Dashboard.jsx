@@ -81,6 +81,18 @@ function QuickAction({ icon: Icon, label, to, desc }) {
   );
 }
 
+function ProfileAction({ to, children }) {
+  return (
+    <NavLink
+      to={to}
+      className="inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-primary hover:text-accent transition-colors duration-150"
+    >
+      {children}
+      <ChevronRight size={12} aria-hidden="true" />
+    </NavLink>
+  );
+}
+
 function CareChecklistItem({ label, done }) {
   return (
     <div className="flex items-center gap-2 text-xs">
@@ -473,6 +485,9 @@ export default function Dashboard() {
                     {stats.completed}
                   </span>
                 </div>
+              </div>
+              <div className="pt-1">
+                <ProfileAction to="/settings">Manage profile & password</ProfileAction>
               </div>
             </div>
 
